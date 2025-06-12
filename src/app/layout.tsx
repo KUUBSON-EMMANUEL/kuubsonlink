@@ -4,7 +4,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'VendorLink',
+  title: 'KuubsonLink',
   description: 'Comprehensive and user-friendly delivery website for food vendors.',
 };
 

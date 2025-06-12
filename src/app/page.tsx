@@ -17,7 +17,7 @@ const features = [
   {
     icon: Users,
     title: "Support Local",
-    description: "Empower local food businesses by ordering through VendorLink.",
+    description: "Empower local food businesses by ordering through KuubsonLink.",
   },
   {
     icon: CheckCircle,
@@ -36,7 +36,7 @@ export default function HomePage() {
             Discover Flavors, Delivered.
           </h1>
           <p className="text-lg md:text-xl text-foreground max-w-2xl mx-auto mb-8 animate-in slide-in-from-bottom-10 duration-700 delay-200">
-            VendorLink connects you with the best local food vendors. Order your favorite meals with ease and enjoy fast, reliable delivery.
+            KuubsonLink connects you with the best local food vendors. Order your favorite meals with ease and enjoy fast, reliable delivery.
           </p>
           <div className="space-x-4 animate-in fade-in duration-700 delay-400">
             <Link href="/restaurants">
@@ -57,7 +57,7 @@ export default function HomePage() {
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-headline font-semibold text-center text-foreground mb-12">
-            Why Choose VendorLink?
+            Why Choose KuubsonLink?
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (

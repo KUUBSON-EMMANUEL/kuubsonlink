@@ -20,7 +20,7 @@ export function Navbar() {
       <nav className="container mx-auto px-4 py-3 flex justify-between items-center">
         <Link href="/" className="flex items-center gap-2">
           <Utensils className="h-8 w-8 text-primary" />
-          <span className="text-2xl font-headline font-bold text-primary">VendorLink</span>
+          <span className="text-2xl font-headline font-bold text-primary">KuubsonLink</span>
         </Link>
         
         <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
