@@ -11,7 +11,9 @@ export function AppShell({ children }: AppShellProps) {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <main className="flex-grow container mx-auto px-4 py-8">
-        {children}
+        <div className="bg-background/80 p-4 md:p-6 rounded-lg shadow-xl">
+          {children}
+        </div>
       </main>
       <Footer />
     </div>
