@@ -10,9 +10,9 @@ import Link from "next/link";
 export default function CustomerProfilePage() {
   // Placeholder data
   const user = {
-    name: "Alex Customer",
+    name: "Kuubson Frankie",
     email: "alex.customer@example.com",
-    initials: "AC",
+    initials: "KF",
     avatarUrl: "https://placehold.co/100x100.png",
     joinDate: "2023-03-15",
     phone: "(555) 987-6543",
