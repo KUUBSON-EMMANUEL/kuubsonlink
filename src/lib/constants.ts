@@ -1,5 +1,6 @@
+
 import type { NavItem } from '@/lib/types';
-import { Home, Store, UserCircle, Bot, LifeBuoy, LogIn, Briefcase } from 'lucide-react';
+import { Home, Store, UserCircle, Bot, LifeBuoy, LogIn, Briefcase, LogOut } from 'lucide-react';
 
 export const NAV_LINKS_MAIN: NavItem[] = [
   { href: '/', label: 'Home', icon: Home },
@@ -10,11 +11,16 @@ export const NAV_LINKS_MAIN: NavItem[] = [
 
 export const NAV_LINKS_USER_AUTHENTICATED: NavItem[] = [
   { href: '/account/profile', label: 'My Account', icon: UserCircle },
-  // Add more authenticated user links here, e.g., orders
+  // Vendor dashboard link could be conditional based on user role
+  // { href: '/vendor/dashboard', label: 'Vendor Dashboard', icon: Briefcase },
+  { href: '#', label: 'Logout', icon: LogOut }, // Placeholder, logout handled by context now
 ];
 
-export const NAV_LINKS_VENDOR_AUTHENTICATED: NavItem[] = [
-  { href: '/vendor/dashboard', label: 'Vendor Dashboard', icon: Briefcase },
+// This constant might not be directly used in Navbar if we use Dropdown for authenticated users
+// but keeping it for conceptual clarity or other potential uses.
+export const NAV_LINKS_AUTHENTICATED_MENU: NavItem[] = [
+    { href: '/account/profile', label: 'My Account', icon: UserCircle },
+    { href: '/vendor/dashboard', label: 'Vendor Dashboard', icon: Briefcase }, // Conditional
 ];
 
 
