@@ -3,11 +3,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { NAV_LINKS_MAIN, NAV_LINKS_GUEST, NAV_LINKS_USER_AUTHENTICATED } from '@/lib/constants';
+import { NAV_LINKS_MAIN, NAV_LINKS_GUEST } from '@/lib/constants'; // Removed NAV_LINKS_USER_AUTHENTICATED as it's not directly used now
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Utensils, LogOut, UserCircle, Briefcase } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth'; // Import useAuth hook
+import { useAuth } from '@/hooks/useAuth';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,10 +21,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function Navbar() {
   const pathname = usePathname();
-  const { currentUser, logout, loading } = useAuth(); // Use the auth context
+  const { currentUser, logout, loading } = useAuth();
 
-  // Placeholder for user role - this would come from currentUser custom claims or profile data in a real app
-  // const userRole = 'customer'; // 'customer' or 'vendor'
+  // SIMULATED VENDOR CHECK - REPLACE WITH ACTUAL CUSTOM CLAIMS IN PRODUCTION
+  const isVendor = currentUser && 
+                   (currentUser.displayName?.toLowerCase().includes('vendor') || 
+                    currentUser.email === 'vendor@example.com');
 
   const getAvatarFallback = (displayName?: string | null) => {
     if (!displayName) return "U";
@@ -37,7 +39,6 @@ export function Navbar() {
 
 
   if (loading) {
-    // Optional: render a loading state for the navbar or a simplified version
     return (
       <header className="bg-card shadow-md sticky top-0 z-50">
         <nav className="container mx-auto px-4 py-3 flex justify-between items-center">
@@ -108,15 +109,14 @@ export function Navbar() {
                     My Account
                   </Link>
                 </DropdownMenuItem>
-                {/* Placeholder for vendor role check */}
-                {/* {userRole === 'vendor' && (
+                {isVendor && (
                   <DropdownMenuItem asChild>
                     <Link href="/vendor/dashboard" className="flex items-center w-full">
                       <Briefcase className="mr-2 h-4 w-4" />
                       Vendor Dashboard
                     </Link>
                   </DropdownMenuItem>
-                )} */}
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={logout} className="cursor-pointer text-destructive focus:text-destructive-foreground focus:bg-destructive">
                   <LogOut className="mr-2 h-4 w-4" />
@@ -134,9 +134,8 @@ export function Navbar() {
               </Link>
             ))
           )}
-           {/* Mobile menu button - can be implemented with Sheet component */}
           <Button variant="ghost" size="icon" className="md:hidden">
-            <Utensils className="h-5 w-5" /> {/* Placeholder icon, usually Menu icon */}
+            <Utensils className="h-5 w-5" /> 
             <span className="sr-only">Open menu</span>
           </Button>
         </div>
