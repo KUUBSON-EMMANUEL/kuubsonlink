@@ -1,3 +1,6 @@
+
+"use client"; // Added this line
+
 import { VendorRegistrationForm } from '@/components/forms/VendorRegistrationForm';
 
 export default function VendorRegisterPage() {
