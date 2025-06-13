@@ -37,17 +37,18 @@ const placeholderOrders = [
   {
     id: "ORD123456",
     date: "2024-04-28",
-    status: "Preparing", // Added another status for testing badge
+    status: "Preparing", 
     total: 19.75,
     vendorName: "Pizza Heaven",
     items: [{ name: "Margherita Pizza", quantity: 1 }],
   },
 ];
 
+// Function to determine badge variant based on order status
 const getStatusBadgeVariant = (status: string): "default" | "destructive" | "secondary" | "outline" => {
   switch (status.toLowerCase()) {
     case "delivered":
-      return "default"; // Will use primary color
+      return "default"; // Uses primary color by default
     case "cancelled":
       return "destructive";
     case "pending":
@@ -55,7 +56,7 @@ const getStatusBadgeVariant = (status: string): "default" | "destructive" | "sec
     case "out for delivery":
       return "secondary"; // Good for in-progress/neutral states
     default:
-      return "outline"; // Fallback
+      return "outline"; // Fallback for unknown statuses
   }
 };
 
@@ -112,7 +113,8 @@ export default function OrderHistoryPage() {
                             Placed on: {new Date(order.date).toLocaleDateString()} from {order.vendorName}
                         </CardDescription>
                     </div>
-                    <Badge variant={getStatusBadgeVariant(order.status)} className="mt-2 md:mt-0">
+                    {/* Use the Badge component here */}
+                    <Badge variant={getStatusBadgeVariant(order.status)} className="mt-2 md:mt-0 text-xs">
                         {order.status}
                     </Badge>
                 </div>
