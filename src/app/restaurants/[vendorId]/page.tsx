@@ -1,3 +1,6 @@
+
+"use client";
+
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getVendorBySlug, placeholderMenu, placeholderReviews } from '@/lib/placeholder-data';
@@ -6,13 +9,36 @@ import { ReviewCard } from '@/components/cards/ReviewCard';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MapPin, Clock, Phone, Star, MessageSquarePlus } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import { useState } from 'react';
+import type { Vendor } from '@/lib/types'; // Import Vendor type for generateStaticParams
 
 interface VendorPageProps {
   params: { vendorId: string }; // vendorId is the slug
 }
 
+// Fetch vendor data at build time for generateStaticParams
+async function getVendorsForStaticParams() {
+  // In a real app, this would fetch from your data source
+  // For now, we use the placeholder data directly.
+  // Ensure placeholderVendors is accessible here or refactor data fetching.
+  const { placeholderVendors } = await import('@/lib/placeholder-data');
+  return placeholderVendors;
+}
+
+
 export default function VendorPage({ params }: VendorPageProps) {
   const vendor = getVendorBySlug(params.vendorId);
+  const { currentUser } = useAuth();
+  const { toast } = useToast();
+  const [reviewRating, setReviewRating] = useState("5");
+  const [reviewComment, setReviewComment] = useState("");
+  const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
 
   if (!vendor) {
     notFound();
@@ -20,9 +46,29 @@ export default function VendorPage({ params }: VendorPageProps) {
 
   // In a real app, menu and reviews would be fetched based on vendor.id
   const menuCategories = placeholderMenu;
-  const reviews = placeholderReviews;
+  const reviews = placeholderReviews; // Assuming reviews are part of vendor or fetched separately
 
-  const averageRating = reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length || 0;
+  const averageRating = reviews.length > 0 ? reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length : 0;
+
+  const handleReviewSubmit = () => {
+    if (!currentUser) {
+      toast({
+        title: "Login Required",
+        description: "Please log in to submit a review.",
+        variant: "destructive",
+      });
+      return;
+    }
+    // Placeholder submission
+    console.log("Review Submitted:", { vendorId: vendor.id, userId: currentUser.uid, rating: reviewRating, comment: reviewComment });
+    toast({
+      title: "Review Submitted!",
+      description: "Thank you for your feedback (this is a placeholder and not saved).",
+    });
+    setReviewComment("");
+    setReviewRating("5");
+    setIsReviewDialogOpen(false);
+  };
 
   return (
     <div className="container mx-auto px-4 py-8 animate-in fade-in duration-500">
@@ -99,9 +145,59 @@ export default function VendorPage({ params }: VendorPageProps) {
                     Customer Feedback 
                     <span className="ml-2 text-yellow-500">({averageRating.toFixed(1)} <Star className="inline w-5 h-5 mb-1 fill-current" />)</span>
                 </h2>
-                <Button variant="outline">
-                    <MessageSquarePlus className="mr-2 h-4 w-4" /> Write a Review
-                </Button>
+                <Dialog open={isReviewDialogOpen} onOpenChange={setIsReviewDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" onClick={() => setIsReviewDialogOpen(true)}>
+                        <MessageSquarePlus className="mr-2 h-4 w-4" /> Write a Review
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle className="font-headline text-primary">Write a Review for {vendor.name}</DialogTitle>
+                      <DialogDescription>
+                        Share your experience with other customers.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="rating" className="text-right">
+                          Rating
+                        </Label>
+                        <Select value={reviewRating} onValueChange={setReviewRating}>
+                          <SelectTrigger className="col-span-3">
+                            <SelectValue placeholder="Select rating" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {[5, 4, 3, 2, 1].map(num => (
+                              <SelectItem key={num} value={String(num)}>
+                                {num} Star{num > 1 ? 's' : ''}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="comment" className="text-right">
+                          Comment
+                        </Label>
+                        <Textarea
+                          id="comment"
+                          value={reviewComment}
+                          onChange={(e) => setReviewComment(e.target.value)}
+                          className="col-span-3"
+                          placeholder="Tell us about your experience..."
+                          rows={4}
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <DialogClose asChild>
+                        <Button type="button" variant="outline">Cancel</Button>
+                      </DialogClose>
+                      <Button type="button" onClick={handleReviewSubmit}>Submit Review</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
             </div>
             {reviews.length > 0 ? (
               reviews.map((review, index) => (
@@ -121,8 +217,16 @@ export default function VendorPage({ params }: VendorPageProps) {
 
 // Generate static paths for placeholder vendors
 export async function generateStaticParams() {
-  const vendors = placeholderVendors;
-  return vendors.map((vendor) => ({
+  // The getVendorsForStaticParams function needs to be callable at build time.
+  // It might be better to directly access placeholderVendors if it's simple.
+  const vendors = await getVendorsForStaticParams();
+  return vendors.map((vendor: Vendor) => ({ // Ensure vendor type here
     vendorId: vendor.slug,
   }));
 }
+
+// Ensure getVendorBySlug can be used by generateStaticParams if needed for data fetching,
+// or ensure placeholderVendors is directly available.
+// For this example, it's assumed getVendorBySlug is sufficient for page rendering
+// and placeholderVendors (via getVendorsForStaticParams) for path generation.
+

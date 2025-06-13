@@ -22,7 +22,6 @@ const firebaseConfig = {
   messagingSenderId: "829800170717",
   appId: "1:829800170717:web:8b24fabfc2f24c6a7b4734"
 };
-
 // Log the config to the console for debugging.
 if (typeof window !== 'undefined') { // This block runs on the CLIENT-SIDE
     console.log("Firebase Studio Debug (CLIENT): Attempting to initialize Firebase with this config:", firebaseConfig);
