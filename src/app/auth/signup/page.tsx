@@ -19,9 +19,9 @@ import { Loader2 } from "lucide-react";
 
 const signupSchema = z.object({
   fullName: z.string().min(2, { message: "Full name must be at least 2 characters." }),
-  email: z.string().email({ message: "Please enter a valid email address." }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
-  confirmPassword: z.string()
+ email: z.string().email("Please enter a valid email address.").min(1, { message: "Email is required." }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters." }).min(1, { message: "Password is required." }),
+ confirmPassword: z.string().min(1, { message: "Confirm Password is required." })
 }).refine(data => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],

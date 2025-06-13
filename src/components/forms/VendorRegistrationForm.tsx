@@ -1,8 +1,12 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { useState, useTransition } from "react"; // Added useTransition
+import { Loader2 } from "lucide-react"; // Added Loader2
+import { useToast } from "@/hooks/use-toast"; // Added useToast
 
 import { Button } from "@/components/ui/button";
 import {
@@ -35,6 +39,9 @@ const vendorRegistrationSchema = z.object({
 type VendorRegistrationFormValues = z.infer<typeof vendorRegistrationSchema>;
 
 export function VendorRegistrationForm() {
+  const [isPending, startTransition] = useTransition();
+  const { toast } = useToast();
+
   const form = useForm<VendorRegistrationFormValues>({
     resolver: zodResolver(vendorRegistrationSchema),
     defaultValues: {
@@ -50,9 +57,18 @@ export function VendorRegistrationForm() {
   });
 
   function onSubmit(values: VendorRegistrationFormValues) {
-    // Handle form submission (e.g., API call)
-    console.log(values);
-    // Show success message or redirect
+    startTransition(async () => {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500)); 
+      
+      console.log("Vendor Registration Submitted:", values);
+      
+      toast({
+        title: "Registration Submitted!",
+        description: "Thank you for registering. We will review your application and get back to you soon.",
+      });
+      form.reset(); // Reset form fields after successful submission
+    });
   }
 
   return (
@@ -71,7 +87,7 @@ export function VendorRegistrationForm() {
                 <FormItem>
                   <FormLabel>Restaurant Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., The Delicious Place" {...field} />
+                    <Input placeholder="e.g., The Delicious Place" {...field} disabled={isPending} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -84,7 +100,7 @@ export function VendorRegistrationForm() {
                 <FormItem>
                   <FormLabel>Your Full Name (Contact Person)</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., John Doe" {...field} />
+                    <Input placeholder="e.g., John Doe" {...field} disabled={isPending} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -98,7 +114,7 @@ export function VendorRegistrationForm() {
                     <FormItem>
                     <FormLabel>Email Address</FormLabel>
                     <FormControl>
-                        <Input type="email" placeholder="you@example.com" {...field} />
+                        <Input type="email" placeholder="you@example.com" {...field} disabled={isPending} />
                     </FormControl>
                     <FormMessage />
                     </FormItem>
@@ -111,7 +127,7 @@ export function VendorRegistrationForm() {
                     <FormItem>
                     <FormLabel>Phone Number</FormLabel>
                     <FormControl>
-                        <Input type="tel" placeholder="(123) 456-7890" {...field} />
+                        <Input type="tel" placeholder="(123) 456-7890" {...field} disabled={isPending} />
                     </FormControl>
                     <FormMessage />
                     </FormItem>
@@ -125,7 +141,7 @@ export function VendorRegistrationForm() {
                 <FormItem>
                   <FormLabel>Restaurant Address</FormLabel>
                   <FormControl>
-                    <Input placeholder="123 Main St, Anytown, USA" {...field} />
+                    <Input placeholder="123 Main St, Anytown, USA" {...field} disabled={isPending} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -138,7 +154,7 @@ export function VendorRegistrationForm() {
                 <FormItem>
                   <FormLabel>Type of Cuisine</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Italian, Mexican, Indian" {...field} />
+                    <Input placeholder="e.g., Italian, Mexican, Indian" {...field} disabled={isPending} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -155,6 +171,7 @@ export function VendorRegistrationForm() {
                       placeholder="Tell us a bit about your restaurant's specialty or atmosphere."
                       className="resize-none"
                       {...field}
+                      disabled={isPending}
                     />
                   </FormControl>
                   <FormMessage />
@@ -170,6 +187,7 @@ export function VendorRegistrationForm() {
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
+                      disabled={isPending}
                     />
                   </FormControl>
                   <div className="space-y-1 leading-none">
@@ -179,15 +197,19 @@ export function VendorRegistrationForm() {
                     <FormDescription>
                       Please review our terms before proceeding.
                     </FormDescription>
-                     <FormMessage /> {/* This will show the error if not checked */}
+                     <FormMessage />
                   </div>
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full font-semibold" size="lg">Register Restaurant</Button>
+            <Button type="submit" className="w-full font-semibold" size="lg" disabled={isPending}>
+              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isPending ? "Submitting..." : "Register Restaurant"}
+            </Button>
           </form>
         </Form>
       </CardContent>
     </Card>
   );
 }
+
