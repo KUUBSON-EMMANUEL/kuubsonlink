@@ -4,9 +4,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { useState, useTransition } from "react"; // Added useTransition
-import { Loader2 } from "lucide-react"; // Added Loader2
-import { useToast } from "@/hooks/use-toast"; // Added useToast
+import { useState, useTransition } from "react";
+import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation"; // Added useRouter
 
 import { Button } from "@/components/ui/button";
 import {
@@ -41,6 +42,7 @@ type VendorRegistrationFormValues = z.infer<typeof vendorRegistrationSchema>;
 export function VendorRegistrationForm() {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
+  const router = useRouter(); // Initialized useRouter
 
   const form = useForm<VendorRegistrationFormValues>({
     resolver: zodResolver(vendorRegistrationSchema),
@@ -64,10 +66,12 @@ export function VendorRegistrationForm() {
       console.log("Vendor Registration Submitted:", values);
       
       toast({
-        title: "Registration Submitted!",
-        description: "Thank you for registering. We will review your application and get back to you soon.",
+        title: "Registration Info Received!",
+        description: "Thank you! We'll review your application. Please log in or create an account to eventually access your dashboard.",
+        duration: 5000, // Keep toast a bit longer
       });
       form.reset(); // Reset form fields after successful submission
+      router.push('/auth/login'); // Redirect to login page
     });
   }
 
