@@ -23,9 +23,13 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Log the config to the console for debugging
+// Log the config to the console for debugging.
+// THIS IS THE MOST IMPORTANT PART FOR YOU TO CHECK IN YOUR BROWSER.
 if (typeof window !== 'undefined') { // Ensure this only runs on the client-side
-    console.log("Attempting to initialize Firebase with config:", firebaseConfig);
+    console.log("Firebase Studio Debug: Attempting to initialize Firebase with this config:", firebaseConfig);
+    if (!firebaseConfig.apiKey) {
+        console.error("Firebase Studio Debug: Firebase API Key is missing or undefined!");
+    }
 }
 
 // Initialize Firebase
@@ -36,6 +40,6 @@ if (!getApps().length) {
   app = getApps()[0];
 }
 
-const auth: Auth = getAuth(app);
+const auth: Auth = getAuth(app); // Error happens here if 'app' is not valid due to bad config
 
 export { app, auth };
