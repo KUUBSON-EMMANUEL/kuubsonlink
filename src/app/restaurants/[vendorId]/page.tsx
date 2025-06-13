@@ -16,21 +16,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
-import type { Vendor } from '@/lib/types'; // Import Vendor type for generateStaticParams
 
 interface VendorPageProps {
   params: { vendorId: string }; // vendorId is the slug
 }
-
-// Fetch vendor data at build time for generateStaticParams
-async function getVendorsForStaticParams() {
-  // In a real app, this would fetch from your data source
-  // For now, we use the placeholder data directly.
-  // Ensure placeholderVendors is accessible here or refactor data fetching.
-  const { placeholderVendors } = await import('@/lib/placeholder-data');
-  return placeholderVendors;
-}
-
 
 export default function VendorPage({ params }: VendorPageProps) {
   const vendor = getVendorBySlug(params.vendorId);
@@ -214,19 +203,3 @@ export default function VendorPage({ params }: VendorPageProps) {
     </div>
   );
 }
-
-// Generate static paths for placeholder vendors
-export async function generateStaticParams() {
-  // The getVendorsForStaticParams function needs to be callable at build time.
-  // It might be better to directly access placeholderVendors if it's simple.
-  const vendors = await getVendorsForStaticParams();
-  return vendors.map((vendor: Vendor) => ({ // Ensure vendor type here
-    vendorId: vendor.slug,
-  }));
-}
-
-// Ensure getVendorBySlug can be used by generateStaticParams if needed for data fetching,
-// or ensure placeholderVendors is directly available.
-// For this example, it's assumed getVendorBySlug is sufficient for page rendering
-// and placeholderVendors (via getVendorsForStaticParams) for path generation.
-
