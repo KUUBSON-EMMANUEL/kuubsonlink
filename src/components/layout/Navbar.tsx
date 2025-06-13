@@ -24,9 +24,15 @@ export function Navbar() {
   const { currentUser, logout, loading } = useAuth();
 
   // SIMULATED VENDOR CHECK - REPLACE WITH ACTUAL CUSTOM CLAIMS IN PRODUCTION
-  const isVendor = currentUser && 
-                   (currentUser.displayName?.toLowerCase().includes('vendor') || 
-                    currentUser.email === 'vendor@example.com');
+  if (currentUser) {
+    console.log('[Navbar Debug] currentUser.displayName:', currentUser.displayName);
+    console.log('[Navbar Debug] currentUser.email:', currentUser.email);
+  }
+  const isVendor = currentUser &&
+                   (currentUser.displayName?.toLowerCase().includes('vendor') ||
+                    currentUser.email?.toLowerCase() === 'vendor@example.com');
+  console.log('[Navbar Debug] isVendor evaluation:', isVendor);
+
 
   const getAvatarFallback = (displayName?: string | null) => {
     if (!displayName) return "U";
