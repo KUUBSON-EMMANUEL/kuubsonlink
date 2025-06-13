@@ -8,6 +8,7 @@ import { Loader2, ShoppingBag } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge"; // Import the Badge component
 
 // Placeholder data for orders - replace with actual data fetching
 const placeholderOrders = [
@@ -36,12 +37,27 @@ const placeholderOrders = [
   {
     id: "ORD123456",
     date: "2024-04-28",
-    status: "Delivered",
+    status: "Preparing", // Added another status for testing badge
     total: 19.75,
     vendorName: "Pizza Heaven",
     items: [{ name: "Margherita Pizza", quantity: 1 }],
   },
 ];
+
+const getStatusBadgeVariant = (status: string): "default" | "destructive" | "secondary" | "outline" => {
+  switch (status.toLowerCase()) {
+    case "delivered":
+      return "default"; // Will use primary color
+    case "cancelled":
+      return "destructive";
+    case "pending":
+    case "preparing":
+    case "out for delivery":
+      return "secondary"; // Good for in-progress/neutral states
+    default:
+      return "outline"; // Fallback
+  }
+};
 
 
 export default function OrderHistoryPage() {
@@ -96,13 +112,9 @@ export default function OrderHistoryPage() {
                             Placed on: {new Date(order.date).toLocaleDateString()} from {order.vendorName}
                         </CardDescription>
                     </div>
-                    <span className={`mt-2 md:mt-0 px-3 py-1 text-xs font-semibold rounded-full ${
-                        order.status === "Delivered" ? "bg-green-100 text-green-700" :
-                        order.status === "Cancelled" ? "bg-red-100 text-red-700" :
-                        "bg-yellow-100 text-yellow-700"
-                    }`}>
+                    <Badge variant={getStatusBadgeVariant(order.status)} className="mt-2 md:mt-0">
                         {order.status}
-                    </span>
+                    </Badge>
                 </div>
               </CardHeader>
               <CardContent>
@@ -129,5 +141,3 @@ export default function OrderHistoryPage() {
     </div>
   );
 }
-
-    
