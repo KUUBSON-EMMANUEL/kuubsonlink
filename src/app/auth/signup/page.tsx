@@ -48,13 +48,15 @@ export default function SignupPage() {
     startTransition(async () => {
       try {
         const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
-        if (userCredential.user) {
-          await updateProfile(userCredential.user, {
-            displayName: values.fullName,
-          });
-        }
+ await updateProfile(userCredential.user, {
+ displayName: values.fullName,
+ });
+
+        // Additional actions after successful signup, e.g., storing user data in Firestore
+        // await db.collection("users").doc(userCredential.user.uid).set({ ... });
         toast({
           title: "Account Created!",
+
           description: "You have successfully signed up.",
         });
         router.push("/account/profile"); // Or redirect to a welcome page
