@@ -4,15 +4,16 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import { Loader2, Heart } from "lucide-react"; // Removed ShoppingBag as it's not used
+import { Loader2, Heart } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { VendorCard } from "@/components/cards/VendorCard";
 import { placeholderVendors } from "@/lib/placeholder-data";
 
-// Simulate a list of favorite vendor IDs - in a real app, this would come from user data
-const favoriteVendorIds = ['1', '3']; // IDs from placeholderVendors
+// For demonstration, we'll show the first 2 vendors from the placeholder data as "favorites"
+// In a real app, this data would come from user-specific storage.
+const simulatedFavoriteVendors = placeholderVendors.slice(0, 2);
 
 export default function FavoriteVendorsPage() {
   const { currentUser, loading: authLoading } = useAuth();
@@ -32,7 +33,7 @@ export default function FavoriteVendorsPage() {
     );
   }
 
-  const favoriteVendorsList = placeholderVendors.filter(vendor => favoriteVendorIds.includes(vendor.id));
+  const favoriteVendorsList = simulatedFavoriteVendors; // Using the simulated list
 
   return (
     <div className="container mx-auto px-4 py-8 animate-in fade-in duration-500">
