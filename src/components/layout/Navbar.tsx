@@ -23,15 +23,13 @@ export function Navbar() {
   const pathname = usePathname();
   const { currentUser, logout, loading } = useAuth();
 
-  // SIMULATED VENDOR CHECK - REPLACE WITH ACTUAL CUSTOM CLAIMS IN PRODUCTION
+  let isVendor = false;
   if (currentUser) {
-    console.log('[Navbar Debug] currentUser.displayName:', currentUser.displayName);
-    console.log('[Navbar Debug] currentUser.email:', currentUser.email);
+    const displayName = currentUser.displayName || "";
+    const email = currentUser.email || "";
+    isVendor = displayName.toLowerCase().includes('vendor') || 
+               email.toLowerCase() === 'vendor@example.com';
   }
-  const isVendor = currentUser &&
-                   (currentUser.displayName?.toLowerCase().includes('vendor') ||
-                    currentUser.email?.toLowerCase() === 'vendor@example.com');
-  console.log('[Navbar Debug] isVendor evaluation:', isVendor);
 
 
   const getAvatarFallback = (displayName?: string | null) => {
@@ -92,7 +90,7 @@ export function Navbar() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                   <Avatar className="h-9 w-9">
-                    <AvatarImage src={currentUser.photoURL || undefined} alt={currentUser.displayName || "User"} data-ai-hint="person avatar" />
+                    <AvatarImage src={currentUser.photoURL || undefined} alt={currentUser.displayName || "User"} data-ai-hint="person avatar"/>
                     <AvatarFallback>{getAvatarFallback(currentUser.displayName)}</AvatarFallback>
                   </Avatar>
                 </Button>
