@@ -22,6 +22,7 @@ export default function VendorMenuPage() {
   // State for Category Dialog
   const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
   const [isSubmittingCategory, setIsSubmittingCategory] = useState(false);
 
   // State for Item Dialog
@@ -59,8 +60,21 @@ export default function VendorMenuPage() {
     }
   }, [isItemDialogOpen, editingItem]);
 
+  useEffect(() => {
+    if (!isCategoryDialogOpen) {
+        setNewCategoryName("");
+        setEditingCategoryId(null);
+    }
+  }, [isCategoryDialogOpen]);
 
-  const handleAddCategory = async () => {
+
+  const handleOpenEditCategoryDialog = (category: MenuItemCategory) => {
+    setEditingCategoryId(category.id);
+    setNewCategoryName(category.name);
+    setIsCategoryDialogOpen(true);
+  };
+
+  const handleSaveCategory = async () => {
     if (!newCategoryName.trim()) {
       toast({
         title: "Error",
@@ -72,17 +86,31 @@ export default function VendorMenuPage() {
     setIsSubmittingCategory(true);
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    const newCategory: MenuItemCategory = {
-      id: `cat-${Date.now()}`,
-      name: newCategoryName,
-      items: [],
-    };
-    setMenuCategories(prev => [newCategory, ...prev]);
-    toast({
-      title: "Category Added!",
-      description: `Category "${newCategoryName}" has been successfully created.`,
-    });
+    if (editingCategoryId) {
+      setMenuCategories(prev => 
+        prev.map(cat => 
+          cat.id === editingCategoryId ? { ...cat, name: newCategoryName } : cat
+        )
+      );
+      toast({
+        title: "Category Updated!",
+        description: `Category "${newCategoryName}" has been successfully updated.`,
+      });
+    } else {
+      const newCategory: MenuItemCategory = {
+        id: `cat-${Date.now()}`,
+        name: newCategoryName,
+        items: [],
+      };
+      setMenuCategories(prev => [newCategory, ...prev]);
+      toast({
+        title: "Category Added!",
+        description: `Category "${newCategoryName}" has been successfully created.`,
+      });
+    }
+    
     setNewCategoryName("");
+    setEditingCategoryId(null);
     setIsCategoryDialogOpen(false);
     setIsSubmittingCategory(false);
   };
@@ -184,7 +212,7 @@ export default function VendorMenuPage() {
   const handleConfirmDeleteItem = async () => {
     if (!itemToDelete) return;
     setIsDeletingItem(true);
-    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 500)); 
 
     setMenuCategories(prevCategories =>
       prevCategories.map(category =>
@@ -202,9 +230,6 @@ export default function VendorMenuPage() {
     setItemToDelete(null);
   };
 
-  const handleEditCategory = (categoryId: string) => {
-    toast({ title: "Coming Soon", description: `Edit functionality for category ${categoryId} is not yet implemented.`});
-  };
   const handleDeleteCategory = (categoryId: string) => {
     toast({ title: "Coming Soon", description: `Delete functionality for category ${categoryId} is not yet implemented.`});
   };
@@ -222,15 +247,15 @@ export default function VendorMenuPage() {
         </div>
         <Dialog open={isCategoryDialogOpen} onOpenChange={setIsCategoryDialogOpen}>
           <DialogTrigger asChild>
-             <Button>
+             <Button onClick={() => { setEditingCategoryId(null); setIsCategoryDialogOpen(true); } }>
                 <PlusCircle className="mr-2 h-4 w-4" /> Add New Category
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle className="font-headline text-primary">Add New Menu Category</DialogTitle>
+              <DialogTitle className="font-headline text-primary">{editingCategoryId ? "Edit Category Name" : "Add New Menu Category"}</DialogTitle>
               <DialogDescription>
-                Enter the name for your new menu category. Click save when you&apos;re done.
+                {editingCategoryId ? "Update the name for this category." : "Enter the name for your new menu category."} Click save when you&apos;re done.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -251,9 +276,9 @@ export default function VendorMenuPage() {
               <DialogClose asChild>
                  <Button type="button" variant="outline" disabled={isSubmittingCategory}>Cancel</Button>
               </DialogClose>
-              <Button type="button" onClick={handleAddCategory} disabled={isSubmittingCategory}>
+              <Button type="button" onClick={handleSaveCategory} disabled={isSubmittingCategory}>
                 {isSubmittingCategory && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Save Category
+                {editingCategoryId ? "Save Changes" : "Save Category"}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -333,7 +358,7 @@ export default function VendorMenuPage() {
           <CardHeader className="flex flex-row justify-between items-center">
             <CardTitle className="text-2xl font-headline">{category.name}</CardTitle>
             <div>
-              <Button variant="ghost" size="icon" className="mr-2" onClick={() => handleEditCategory(category.id)}><Edit className="h-4 w-4" /></Button>
+              <Button variant="ghost" size="icon" className="mr-2" onClick={() => handleOpenEditCategoryDialog(category)}><Edit className="h-4 w-4" /></Button>
               <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive-foreground hover:bg-destructive" onClick={() => handleDeleteCategory(category.id)}><Trash2 className="h-4 w-4" /></Button>
             </div>
           </CardHeader>
@@ -385,3 +410,4 @@ export default function VendorMenuPage() {
     </div>
   );
 }
+
