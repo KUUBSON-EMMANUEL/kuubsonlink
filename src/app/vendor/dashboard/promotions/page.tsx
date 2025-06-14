@@ -7,7 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PlusCircle, Percent, Gift, Edit, Trash2, Loader2, Truck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -42,6 +43,10 @@ export default function VendorPromotionsPage() {
   const [newPromoValue, setNewPromoValue] = useState("");
   const [newPromoActive, setNewPromoActive] = useState(true);
 
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [promotionToDelete, setPromotionToDelete] = useState<Promotion | null>(null);
+
+
   useEffect(() => {
     if (editingPromotion) {
       setNewPromoName(editingPromotion.name);
@@ -55,10 +60,10 @@ export default function VendorPromotionsPage() {
       setNewPromoValue("");
       setNewPromoActive(true);
     }
-  }, [editingPromotion, isPromotionDialogOpen]); // Re-populate form when editingPromotion changes or dialog opens
+  }, [editingPromotion, isPromotionDialogOpen]);
 
   const handleOpenCreateDialog = () => {
-    setEditingPromotion(null); // Ensure it's in create mode
+    setEditingPromotion(null);
     setIsPromotionDialogOpen(true);
   };
 
@@ -77,10 +82,9 @@ export default function VendorPromotionsPage() {
       return;
     }
     setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000)); 
 
     if (editingPromotion) {
-      // Update existing promotion
       setPromotions(prev => 
         prev.map(p => 
           p.id === editingPromotion.id 
@@ -93,7 +97,6 @@ export default function VendorPromotionsPage() {
         description: `"${newPromoName}" has been successfully updated.`,
       });
     } else {
-      // Create new promotion
       const newPromotion: Promotion = {
         id: `PROMO${String(Date.now()).slice(-6)}`,
         name: newPromoName,
@@ -110,8 +113,27 @@ export default function VendorPromotionsPage() {
 
     setIsSubmitting(false);
     setIsPromotionDialogOpen(false);
-    setEditingPromotion(null); // Reset editing state
-    // Form fields will be reset by useEffect when dialog closes or editingPromotion is null
+    setEditingPromotion(null);
+  };
+
+  const handleDeletePromotionClick = (promo: Promotion) => {
+    setPromotionToDelete(promo);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!promotionToDelete) return;
+    setIsSubmitting(true); // Use same submitting state for loading indicator
+    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call
+
+    setPromotions(prev => prev.filter(p => p.id !== promotionToDelete.id));
+    toast({
+      title: "Promotion Deleted",
+      description: `"${promotionToDelete.name}" has been removed.`,
+    });
+    setIsSubmitting(false);
+    setIsDeleteDialogOpen(false);
+    setPromotionToDelete(null);
   };
 
 
@@ -129,7 +151,7 @@ export default function VendorPromotionsPage() {
 
       <Dialog open={isPromotionDialogOpen} onOpenChange={(isOpen) => {
         setIsPromotionDialogOpen(isOpen);
-        if (!isOpen) setEditingPromotion(null); // Reset editing state if dialog is closed manually
+        if (!isOpen) setEditingPromotion(null); 
       }}>
         <DialogContent className="sm:max-w-[480px]">
           <DialogHeader>
@@ -206,6 +228,26 @@ export default function VendorPromotionsPage() {
         </DialogContent>
       </Dialog>
 
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the promotion
+              &quot;{promotionToDelete?.name}&quot;.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setPromotionToDelete(null)} disabled={isSubmitting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete} disabled={isSubmitting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <section className="mb-10">
         <h2 className="text-2xl font-headline font-semibold text-foreground mb-4">Current Promotions</h2>
         {promotions.length > 0 ? (
@@ -234,7 +276,7 @@ export default function VendorPromotionsPage() {
                 </CardContent>
                 <CardFooter className="flex justify-end space-x-2">
                   <Button variant="ghost" size="sm" onClick={() => handleOpenEditDialog(promo)}><Edit className="mr-1 h-4 w-4"/> Edit</Button>
-                  <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive-foreground hover:bg-destructive" onClick={() => toast({ title: "Coming Soon", description: "Deleting promotions will be available later."})}><Trash2 className="mr-1 h-4 w-4"/> Delete</Button>
+                  <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive-foreground hover:bg-destructive" onClick={() => handleDeletePromotionClick(promo)}><Trash2 className="mr-1 h-4 w-4"/> Delete</Button>
                 </CardFooter>
               </Card>
             ))}
@@ -281,3 +323,4 @@ export default function VendorPromotionsPage() {
     </div>
   );
 }
+
