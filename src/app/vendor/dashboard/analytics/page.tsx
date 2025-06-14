@@ -1,13 +1,35 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { LineChart, BarChart, PieChart, Users, ShoppingBag, DollarSign, TrendingUp } from "lucide-react";
-// Shadcn charts can be added here if needed using 'recharts'
-// import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
 
-// const data = [
-//   { name: "Jan", total: Math.floor(Math.random() * 5000) + 1000 },
-//   { name: "Feb", total: Math.floor(Math.random() * 5000) + 1000 },
-//   // ... more data
-// ]
+"use client";
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { DollarSign, ShoppingBag, TrendingUp, Users } from "lucide-react";
+import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
+import { PieChart as LucidePieChart, BarChart as LucideBarChart } from "lucide-react"; // Renamed to avoid conflict
+
+const salesData = [
+  { name: "Jan", total: Math.floor(Math.random() * 5000) + 1000 },
+  { name: "Feb", total: Math.floor(Math.random() * 5000) + 1000 },
+  { name: "Mar", total: Math.floor(Math.random() * 5000) + 1000 },
+  { name: "Apr", total: Math.floor(Math.random() * 5000) + 1000 },
+  { name: "May", total: Math.floor(Math.random() * 5000) + 1000 },
+  { name: "Jun", total: Math.floor(Math.random() * 5000) + 1000 },
+];
+
+const topSellingItemsData = [
+  { name: 'Pizza Margherita', sales: 120 },
+  { name: 'Chicken Burger', sales: 98 },
+  { name: 'Pasta Carbonara', sales: 75 },
+  { name: 'Caesar Salad', sales: 60 },
+  { name: 'Chocolate Cake', sales: 45 },
+];
+
+// Example data for Pie Chart (Customer Demographics - placeholder)
+const customerDemographicsData = [
+  { name: '18-24', value: 400 },
+  { name: '25-34', value: 300 },
+  { name: '35-44', value: 300 },
+  { name: '45+', value: 200 },
+];
 
 
 export default function VendorAnalyticsPage() {
@@ -67,42 +89,60 @@ export default function VendorAnalyticsPage() {
             <CardTitle className="text-xl font-headline">Sales Over Time</CardTitle>
             <CardDescription>Monthly sales performance for the last 6 months.</CardDescription>
           </CardHeader>
-          <CardContent className="h-[350px] flex items-center justify-center bg-muted/30 rounded-md">
-            {/* Placeholder for Recharts Line Chart */}
-            <LineChart className="h-24 w-24 text-muted-foreground" />
-            <p className="ml-4 text-muted-foreground">Sales chart would be displayed here.</p>
-            {/* <ResponsiveContainer width="100%" height="100%">
-              <RechartsBarChart data={data}>
-                <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false}/>
-                <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`}/>
-                <Bar dataKey="total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+          <CardContent className="h-[350px] pt-6">
+            <ResponsiveContainer width="100%" height="100%">
+              <RechartsBarChart data={salesData} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false}/>
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`}/>
+                <Tooltip
+                  contentStyle={{ backgroundColor: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: "var(--radius)"}}
+                  labelStyle={{ color: "hsl(var(--foreground))" }}
+                  itemStyle={{ color: "hsl(var(--primary))" }}
+                />
+                <Legend wrapperStyle={{fontSize: "12px", color: "hsl(var(--muted-foreground))"}} />
+                <Bar dataKey="total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="Total Sales" />
               </RechartsBarChart>
-            </ResponsiveContainer> */}
+            </ResponsiveContainer>
           </CardContent>
         </Card>
 
         <Card className="shadow-md">
           <CardHeader>
             <CardTitle className="text-xl font-headline">Top Selling Items</CardTitle>
-            <CardDescription>Your most popular menu items.</CardDescription>
+            <CardDescription>Your most popular menu items this month.</CardDescription>
           </CardHeader>
-          <CardContent className="h-[300px] flex items-center justify-center bg-muted/30 rounded-md">
-             <BarChart className="h-24 w-24 text-muted-foreground" />
-             <p className="ml-4 text-muted-foreground">Top items chart.</p>
+          <CardContent className="h-[300px] pt-6">
+             <ResponsiveContainer width="100%" height="100%">
+              <RechartsBarChart data={topSellingItemsData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))"/>
+                <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis dataKey="name" type="category" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} width={100} />
+                <Tooltip
+                    contentStyle={{ backgroundColor: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: "var(--radius)"}}
+                    labelStyle={{ color: "hsl(var(--foreground))" }}
+                    itemStyle={{ color: "hsl(var(--accent))" }}
+                />
+                <Legend wrapperStyle={{fontSize: "12px", color: "hsl(var(--muted-foreground))"}} />
+                <Bar dataKey="sales" fill="hsl(var(--accent))" radius={[0, 4, 4, 0]} name="Units Sold" />
+              </RechartsBarChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
 
         <Card className="shadow-md">
           <CardHeader>
             <CardTitle className="text-xl font-headline">Customer Demographics</CardTitle>
-            <CardDescription>Overview of your customer base.</CardDescription>
+            <CardDescription>Overview of your customer base (Placeholder).</CardDescription>
           </CardHeader>
           <CardContent className="h-[300px] flex items-center justify-center bg-muted/30 rounded-md">
-            <PieChart className="h-24 w-24 text-muted-foreground" />
-            <p className="ml-4 text-muted-foreground">Demographics chart.</p>
+            <LucidePieChart className="h-24 w-24 text-muted-foreground" /> {/* Using LucidePieChart to avoid conflict */}
+            <p className="ml-4 text-muted-foreground">Demographics pie chart (placeholder).</p>
           </CardContent>
         </Card>
       </div>
     </div>
   );
 }
+
+    
