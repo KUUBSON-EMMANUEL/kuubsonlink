@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { placeholderMenu as initialMenuCategories } from "@/lib/placeholder-data";
 import type { MenuItemCategory, MenuItem } from "@/lib/types";
 import { PlusCircle, Edit, Trash2, Eye, Loader2 } from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,13 +26,35 @@ export default function VendorMenuPage() {
   // State for Item Dialog
   const [isItemDialogOpen, setIsItemDialogOpen] = useState(false);
   const [currentItemCategoryId, setCurrentItemCategoryId] = useState<string | null>(null);
+  const [editingItem, setEditingItem] = useState<MenuItem | null>(null); // For editing
   const [newItemName, setNewItemName] = useState("");
   const [newItemDescription, setNewItemDescription] = useState("");
   const [newItemPrice, setNewItemPrice] = useState("");
   const [newItemImageUrl, setNewItemImageUrl] = useState("https://placehold.co/300x200.png");
   const [newItemDietaryInfo, setNewItemDietaryInfo] = useState("");
   const [isSubmittingItem, setIsSubmittingItem] = useState(false);
-  // We'll add editingItem state later if we implement edit item functionality
+
+
+  useEffect(() => {
+    if (isItemDialogOpen) {
+      if (editingItem) {
+        // Populate form for editing
+        setNewItemName(editingItem.name);
+        setNewItemDescription(editingItem.description);
+        setNewItemPrice(String(editingItem.price));
+        setNewItemImageUrl(editingItem.imageUrl);
+        setNewItemDietaryInfo(editingItem.dietaryInfo?.join(", ") || "");
+      } else {
+        // Reset form for adding new
+        setNewItemName("");
+        setNewItemDescription("");
+        setNewItemPrice("");
+        setNewItemImageUrl("https://placehold.co/300x200.png");
+        setNewItemDietaryInfo("");
+      }
+    }
+  }, [isItemDialogOpen, editingItem]);
+
 
   const handleAddCategory = async () => {
     if (!newCategoryName.trim()) {
@@ -63,12 +85,13 @@ export default function VendorMenuPage() {
 
   const handleOpenAddItemDialog = (categoryId: string) => {
     setCurrentItemCategoryId(categoryId);
-    setNewItemName("");
-    setNewItemDescription("");
-    setNewItemPrice("");
-    setNewItemImageUrl("https://placehold.co/300x200.png");
-    setNewItemDietaryInfo("");
-    // setEditingItem(null); // Reset if we were editing
+    setEditingItem(null); // Ensure we are in "add" mode
+    setIsItemDialogOpen(true);
+  };
+
+  const handleOpenEditItemDialog = (categoryId: string, item: MenuItem) => {
+    setCurrentItemCategoryId(categoryId);
+    setEditingItem(item);
     setIsItemDialogOpen(true);
   };
 
@@ -94,31 +117,61 @@ export default function VendorMenuPage() {
     setIsSubmittingItem(true);
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    const newItem: MenuItem = {
-      id: `item-${Date.now()}`,
-      name: newItemName,
-      description: newItemDescription,
-      price: price,
-      imageUrl: newItemImageUrl || "https://placehold.co/300x200.png",
-      dietaryInfo: newItemDietaryInfo.split(',').map(info => info.trim()).filter(info => info),
-    };
+    if (editingItem) {
+      // Update existing item
+      setMenuCategories(prevCategories =>
+        prevCategories.map(category =>
+          category.id === currentItemCategoryId
+            ? {
+                ...category,
+                items: category.items.map(item =>
+                  item.id === editingItem.id
+                    ? {
+                        ...item,
+                        name: newItemName,
+                        description: newItemDescription,
+                        price: price,
+                        imageUrl: newItemImageUrl || "https://placehold.co/300x200.png",
+                        dietaryInfo: newItemDietaryInfo.split(',').map(info => info.trim()).filter(info => info),
+                      }
+                    : item
+                ),
+              }
+            : category
+        )
+      );
+      toast({
+        title: "Item Updated!",
+        description: `"${newItemName}" has been successfully updated.`,
+      });
+    } else {
+      // Add new item
+      const newItem: MenuItem = {
+        id: `item-${Date.now()}`,
+        name: newItemName,
+        description: newItemDescription,
+        price: price,
+        imageUrl: newItemImageUrl || "https://placehold.co/300x200.png",
+        dietaryInfo: newItemDietaryInfo.split(',').map(info => info.trim()).filter(info => info),
+      };
 
-    setMenuCategories(prevCategories =>
-      prevCategories.map(category =>
-        category.id === currentItemCategoryId
-          ? { ...category, items: [...category.items, newItem] }
-          : category
-      )
-    );
-
-    toast({
-      title: "Item Added!",
-      description: `"${newItemName}" has been successfully added.`,
-    });
+      setMenuCategories(prevCategories =>
+        prevCategories.map(category =>
+          category.id === currentItemCategoryId
+            ? { ...category, items: [...category.items, newItem] }
+            : category
+        )
+      );
+      toast({
+        title: "Item Added!",
+        description: `"${newItemName}" has been successfully added.`,
+      });
+    }
 
     setIsItemDialogOpen(false);
     setIsSubmittingItem(false);
-    setCurrentItemCategoryId(null); // Reset after use
+    setEditingItem(null); // Reset editing item
+    setCurrentItemCategoryId(null); 
   };
 
 
@@ -131,9 +184,7 @@ export default function VendorMenuPage() {
   const handleViewItem = (itemId: string) => {
     toast({ title: "Coming Soon", description: `View functionality for item ${itemId} is not yet implemented.`});
   };
-  const handleEditItem = (itemId: string) => {
-    toast({ title: "Coming Soon", description: `Edit functionality for item ${itemId} is not yet implemented.`});
-  };
+
   const handleDeleteItem = (itemId: string) => {
     toast({ title: "Coming Soon", description: `Delete functionality for item ${itemId} is not yet implemented.`});
   };
@@ -186,12 +237,18 @@ export default function VendorMenuPage() {
       </header>
 
       {/* Item Dialog */}
-      <Dialog open={isItemDialogOpen} onOpenChange={setIsItemDialogOpen}>
+      <Dialog open={isItemDialogOpen} onOpenChange={(isOpen) => {
+        setIsItemDialogOpen(isOpen);
+        if (!isOpen) { // Reset states when dialog closes
+            setEditingItem(null);
+            setCurrentItemCategoryId(null);
+        }
+      }}>
         <DialogContent className="sm:max-w-lg">
             <DialogHeader>
-                <DialogTitle className="font-headline text-primary">Add New Menu Item</DialogTitle>
+                <DialogTitle className="font-headline text-primary">{editingItem ? "Edit Menu Item" : "Add New Menu Item"}</DialogTitle>
                 <DialogDescription>
-                    Fill in the details for the new item. Click save when you&apos;re done.
+                    {editingItem ? "Update the details for this item." : "Fill in the details for the new item."} Click save when you&apos;re done.
                 </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4 max-h-[70vh] overflow-y-auto pr-2">
@@ -220,7 +277,7 @@ export default function VendorMenuPage() {
                 <Button type="button" variant="outline" disabled={isSubmittingItem} onClick={() => setIsItemDialogOpen(false)}>Cancel</Button>
                 <Button type="button" onClick={handleSaveItem} disabled={isSubmittingItem}>
                     {isSubmittingItem && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Save Item
+                    {editingItem ? "Save Changes" : "Save Item"}
                 </Button>
             </DialogFooter>
         </DialogContent>
@@ -263,7 +320,7 @@ export default function VendorMenuPage() {
                       <TableCell className="text-right font-semibold text-primary">${item.price.toFixed(2)}</TableCell>
                       <TableCell className="text-right">
                         <Button variant="ghost" size="icon" className="mr-1" onClick={() => handleViewItem(item.id)}><Eye className="h-4 w-4 text-muted-foreground" /></Button>
-                        <Button variant="ghost" size="icon" className="mr-1" onClick={() => handleEditItem(item.id)}><Edit className="h-4 w-4 text-muted-foreground" /></Button>
+                        <Button variant="ghost" size="icon" className="mr-1" onClick={() => handleOpenEditItemDialog(category.id, item)}><Edit className="h-4 w-4 text-muted-foreground" /></Button>
                         <Button variant="ghost" size="icon" onClick={() => handleDeleteItem(item.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                       </TableCell>
                     </TableRow>
