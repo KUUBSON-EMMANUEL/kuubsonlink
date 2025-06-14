@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState }_ from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -151,12 +151,12 @@ export default function VendorProfilePage() {
         <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                  <div>
-                    <Label htmlFor="logo" className="block mb-2">Logo (Recommended: 200x200px)</Label>
+                    <Label htmlFor="logoFile" className="block mb-2">Logo (Recommended: 200x200px)</Label>
                     {logoFilePreview && <img src={logoFilePreview} alt="Current Logo" data-ai-hint="restaurant logo" className="w-32 h-32 object-cover rounded-md border mb-2" />}
                     <Input id="logoFile" type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'logo')} />
                  </div>
                  <div>
-                    <Label htmlFor="banner" className="block mb-2">Banner Image (Recommended: 1200x400px)</Label>
+                    <Label htmlFor="bannerFile" className="block mb-2">Banner Image (Recommended: 1200x400px)</Label>
                     {bannerFilePreview && <img src={bannerFilePreview} alt="Current Banner" data-ai-hint="restaurant banner" className="w-full h-40 object-cover rounded-md border mb-2" />}
                     <Input id="bannerFile" type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'banner')} />
                  </div>
@@ -173,5 +173,3 @@ export default function VendorProfilePage() {
     </div>
   );
 }
-
-    
