@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { PlusCircle, Percent, Gift, Edit, Trash2, Loader2 } from "lucide-react";
+import { PlusCircle, Percent, Gift, Edit, Trash2, Loader2, Truck } from "lucide-react"; // Added Truck here
 import { useToast } from "@/hooks/use-toast";
 
 // Placeholder promotions data
