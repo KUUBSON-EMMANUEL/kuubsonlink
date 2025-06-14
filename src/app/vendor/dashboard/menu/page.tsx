@@ -9,7 +9,7 @@ import { placeholderMenu as initialMenuCategories } from "@/lib/placeholder-data
 import type { MenuItemCategory, MenuItem } from "@/lib/types";
 import { PlusCircle, Edit, Trash2, Eye, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose, DialogTrigger } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -40,6 +40,11 @@ export default function VendorMenuPage() {
   const [isDeleteItemDialogOpen, setIsDeleteItemDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<{ categoryId: string; itemId: string; itemName: string } | null>(null);
   const [isDeletingItem, setIsDeletingItem] = useState(false);
+
+  // State for Delete Category Confirmation Dialog
+  const [isDeleteCategoryDialogOpen, setIsDeleteCategoryDialogOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<MenuItemCategory | null>(null);
+  const [isDeletingCategory, setIsDeletingCategory] = useState(false);
 
 
   useEffect(() => {
@@ -230,9 +235,26 @@ export default function VendorMenuPage() {
     setItemToDelete(null);
   };
 
-  const handleDeleteCategory = (categoryId: string) => {
-    toast({ title: "Coming Soon", description: `Delete functionality for category ${categoryId} is not yet implemented.`});
+  const handleOpenDeleteCategoryDialog = (category: MenuItemCategory) => {
+    setCategoryToDelete(category);
+    setIsDeleteCategoryDialogOpen(true);
   };
+
+  const handleConfirmDeleteCategory = async () => {
+    if (!categoryToDelete) return;
+    setIsDeletingCategory(true);
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    setMenuCategories(prev => prev.filter(cat => cat.id !== categoryToDelete.id));
+    toast({
+      title: "Category Deleted",
+      description: `Category "${categoryToDelete.name}" and all its items have been removed.`,
+    });
+    setIsDeletingCategory(false);
+    setIsDeleteCategoryDialogOpen(false);
+    setCategoryToDelete(null);
+  };
+
   const handleViewItem = (itemId: string) => {
     toast({ title: "Coming Soon", description: `View functionality for item ${itemId} is not yet implemented.`});
   };
@@ -247,7 +269,7 @@ export default function VendorMenuPage() {
         </div>
         <Dialog open={isCategoryDialogOpen} onOpenChange={setIsCategoryDialogOpen}>
           <DialogTrigger asChild>
-             <Button onClick={() => { setEditingCategoryId(null); setIsCategoryDialogOpen(true); } }>
+             <Button onClick={() => { setEditingCategoryId(null); setNewCategoryName(""); setIsCategoryDialogOpen(true); } }>
                 <PlusCircle className="mr-2 h-4 w-4" /> Add New Category
             </Button>
           </DialogTrigger>
@@ -352,6 +374,40 @@ export default function VendorMenuPage() {
         </AlertDialogContent>
       </AlertDialog>
 
+      {/* Delete Category Confirmation Dialog */}
+      <AlertDialog open={isDeleteCategoryDialogOpen} onOpenChange={setIsDeleteCategoryDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this category?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the category
+              &quot;{categoryToDelete?.name}&quot; and all its items.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setCategoryToDelete(null)} disabled={isDeletingCategory}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDeleteCategory} disabled={isDeletingCategory} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {isDeletingCategory && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Delete Category
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+
+      {menuCategories.length === 0 && (
+        <Card className="text-center py-10 shadow-md">
+          <CardContent>
+            <PlusCircle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <CardTitle className="text-xl font-headline mb-2">Your Menu is Empty</CardTitle>
+            <CardDescription className="mb-4">Start by adding a new menu category.</CardDescription>
+             <Button onClick={() => { setEditingCategoryId(null); setNewCategoryName(""); setIsCategoryDialogOpen(true); } }>
+                Add Your First Category
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
 
       {menuCategories.map(category => (
         <Card key={category.id} className="mb-8 shadow-md">
@@ -359,7 +415,7 @@ export default function VendorMenuPage() {
             <CardTitle className="text-2xl font-headline">{category.name}</CardTitle>
             <div>
               <Button variant="ghost" size="icon" className="mr-2" onClick={() => handleOpenEditCategoryDialog(category)}><Edit className="h-4 w-4" /></Button>
-              <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive-foreground hover:bg-destructive" onClick={() => handleDeleteCategory(category.id)}><Trash2 className="h-4 w-4" /></Button>
+              <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive-foreground hover:bg-destructive" onClick={() => handleOpenDeleteCategoryDialog(category)}><Trash2 className="h-4 w-4" /></Button>
             </div>
           </CardHeader>
           <CardContent>
@@ -410,4 +466,3 @@ export default function VendorMenuPage() {
     </div>
   );
 }
-
