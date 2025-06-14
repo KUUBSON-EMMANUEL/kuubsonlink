@@ -5,9 +5,25 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreHorizontal, Eye, CheckCircle, Truck, XCircle, PackageSearch, ShoppingCart, CircleOff, Clock } from "lucide-react";
+import { MoreHorizontal, Eye, CheckCircle, Truck, XCircle, PackageSearch, ShoppingCart, CircleOff, Clock, CalendarDays, User, Tag, ListOrdered } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 type OrderStatus = "Pending" | "Preparing" | "Out for Delivery" | "Delivered" | "Cancelled";
@@ -18,7 +34,7 @@ interface Order {
   date: string;
   total: number;
   status: OrderStatus;
-  items: number;
+  items: number; // For now, this is the count of items
 }
 
 const initialOrders: Order[] = [
@@ -32,17 +48,16 @@ const initialOrders: Order[] = [
 const getStatusBadgeVariant = (status: OrderStatus): "default" | "destructive" | "secondary" | "outline" => {
   switch (status) {
     case "Pending":
-      return "outline"; // Subtle for pending state
+      return "outline";
     case "Preparing":
-      return "secondary"; // Active work in progress
     case "Out for Delivery":
-      return "secondary"; // Still active, en route
+      return "secondary";
     case "Delivered":
-      return "default"; // Primary color signifies completion
+      return "default";
     case "Cancelled":
       return "destructive";
     default:
-      return "outline"; // Fallback
+      return "outline";
   }
 };
 
@@ -58,6 +73,8 @@ const statusUpdateActions: { label: string; status: OrderStatus; icon: React.Ele
 export default function VendorOrdersPage() {
   const [orders, setOrders] = useState<Order[]>(initialOrders);
   const { toast } = useToast();
+  const [isViewOrderDialogOpen, setIsViewOrderDialogOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const handleUpdateOrderStatus = (orderId: string, newStatus: OrderStatus) => {
     setOrders(prevOrders =>
@@ -72,10 +89,17 @@ export default function VendorOrdersPage() {
   };
 
   const handleViewDetails = (orderId: string) => {
-    toast({
-        title: "Feature Coming Soon",
-        description: `Detailed view for order ${orderId} is not yet implemented.`,
-    });
+    const order = orders.find(o => o.id === orderId);
+    if (order) {
+      setSelectedOrder(order);
+      setIsViewOrderDialogOpen(true);
+    } else {
+        toast({
+            title: "Error",
+            description: "Order not found.",
+            variant: "destructive",
+        });
+    }
   };
 
   return (
@@ -159,6 +183,63 @@ export default function VendorOrdersPage() {
           )}
         </CardContent>
       </Card>
+
+      {selectedOrder && (
+        <Dialog open={isViewOrderDialogOpen} onOpenChange={setIsViewOrderDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="font-headline text-primary">Order Details: #{selectedOrder.id}</DialogTitle>
+              <DialogDescription>
+                Detailed information for order placed by {selectedOrder.customer}.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="flex items-center">
+                <Tag className="mr-3 h-5 w-5 text-muted-foreground" />
+                <span className="text-sm font-medium text-foreground">Order ID:</span>
+                <span className="ml-2 text-sm text-muted-foreground">{selectedOrder.id}</span>
+              </div>
+              <div className="flex items-center">
+                <User className="mr-3 h-5 w-5 text-muted-foreground" />
+                <span className="text-sm font-medium text-foreground">Customer:</span>
+                <span className="ml-2 text-sm text-muted-foreground">{selectedOrder.customer}</span>
+              </div>
+              <div className="flex items-center">
+                <CalendarDays className="mr-3 h-5 w-5 text-muted-foreground" />
+                <span className="text-sm font-medium text-foreground">Date:</span>
+                <span className="ml-2 text-sm text-muted-foreground">{selectedOrder.date}</span>
+              </div>
+              <div className="flex items-center">
+                <ListOrdered className="mr-3 h-5 w-5 text-muted-foreground" />
+                <span className="text-sm font-medium text-foreground">Items:</span>
+                <span className="ml-2 text-sm text-muted-foreground">{selectedOrder.items}</span>
+              </div>
+               <div className="flex items-center">
+                <PackageSearch className="mr-3 h-5 w-5 text-muted-foreground" />
+                <span className="text-sm font-medium text-foreground">Status:</span>
+                <Badge variant={getStatusBadgeVariant(selectedOrder.status)} className="ml-2">{selectedOrder.status}</Badge>
+              </div>
+              <div className="flex items-center pt-2 border-t mt-2">
+                <span className="text-lg font-semibold text-primary">Total:</span>
+                <span className="ml-2 text-lg font-bold text-primary">${selectedOrder.total.toFixed(2)}</span>
+              </div>
+              {/* In a real app, you might list actual items here */}
+              {/* For example:
+              <h4 className="font-medium text-foreground pt-2 border-t">Items:</h4>
+              <ul className="list-disc list-inside text-sm text-muted-foreground">
+                  <li>2x Item Name A ($5.00 each)</li>
+                  <li>1x Item Name B ($10.00 each)</li>
+              </ul> 
+              */}
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button type="button" variant="outline">Close</Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
