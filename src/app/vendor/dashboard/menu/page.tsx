@@ -9,6 +9,7 @@ import { placeholderMenu as initialMenuCategories } from "@/lib/placeholder-data
 import type { MenuItemCategory, MenuItem } from "@/lib/types";
 import { PlusCircle, Edit, Trash2, Eye, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,7 +27,7 @@ export default function VendorMenuPage() {
   // State for Item Dialog
   const [isItemDialogOpen, setIsItemDialogOpen] = useState(false);
   const [currentItemCategoryId, setCurrentItemCategoryId] = useState<string | null>(null);
-  const [editingItem, setEditingItem] = useState<MenuItem | null>(null); // For editing
+  const [editingItem, setEditingItem] = useState<MenuItem | null>(null); 
   const [newItemName, setNewItemName] = useState("");
   const [newItemDescription, setNewItemDescription] = useState("");
   const [newItemPrice, setNewItemPrice] = useState("");
@@ -34,18 +35,21 @@ export default function VendorMenuPage() {
   const [newItemDietaryInfo, setNewItemDietaryInfo] = useState("");
   const [isSubmittingItem, setIsSubmittingItem] = useState(false);
 
+  // State for Delete Item Confirmation Dialog
+  const [isDeleteItemDialogOpen, setIsDeleteItemDialogOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<{ categoryId: string; itemId: string; itemName: string } | null>(null);
+  const [isDeletingItem, setIsDeletingItem] = useState(false);
+
 
   useEffect(() => {
     if (isItemDialogOpen) {
       if (editingItem) {
-        // Populate form for editing
         setNewItemName(editingItem.name);
         setNewItemDescription(editingItem.description);
         setNewItemPrice(String(editingItem.price));
         setNewItemImageUrl(editingItem.imageUrl);
         setNewItemDietaryInfo(editingItem.dietaryInfo?.join(", ") || "");
       } else {
-        // Reset form for adding new
         setNewItemName("");
         setNewItemDescription("");
         setNewItemPrice("");
@@ -85,7 +89,7 @@ export default function VendorMenuPage() {
 
   const handleOpenAddItemDialog = (categoryId: string) => {
     setCurrentItemCategoryId(categoryId);
-    setEditingItem(null); // Ensure we are in "add" mode
+    setEditingItem(null); 
     setIsItemDialogOpen(true);
   };
 
@@ -118,7 +122,6 @@ export default function VendorMenuPage() {
     await new Promise(resolve => setTimeout(resolve, 500));
 
     if (editingItem) {
-      // Update existing item
       setMenuCategories(prevCategories =>
         prevCategories.map(category =>
           category.id === currentItemCategoryId
@@ -145,7 +148,6 @@ export default function VendorMenuPage() {
         description: `"${newItemName}" has been successfully updated.`,
       });
     } else {
-      // Add new item
       const newItem: MenuItem = {
         id: `item-${Date.now()}`,
         name: newItemName,
@@ -170,10 +172,35 @@ export default function VendorMenuPage() {
 
     setIsItemDialogOpen(false);
     setIsSubmittingItem(false);
-    setEditingItem(null); // Reset editing item
+    setEditingItem(null); 
     setCurrentItemCategoryId(null); 
   };
 
+  const handleOpenDeleteItemDialog = (categoryId: string, item: MenuItem) => {
+    setItemToDelete({ categoryId, itemId: item.id, itemName: item.name });
+    setIsDeleteItemDialogOpen(true);
+  };
+
+  const handleConfirmDeleteItem = async () => {
+    if (!itemToDelete) return;
+    setIsDeletingItem(true);
+    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call
+
+    setMenuCategories(prevCategories =>
+      prevCategories.map(category =>
+        category.id === itemToDelete.categoryId
+          ? { ...category, items: category.items.filter(item => item.id !== itemToDelete.itemId) }
+          : category
+      )
+    );
+    toast({
+      title: "Item Deleted",
+      description: `"${itemToDelete.itemName}" has been removed.`,
+    });
+    setIsDeletingItem(false);
+    setIsDeleteItemDialogOpen(false);
+    setItemToDelete(null);
+  };
 
   const handleEditCategory = (categoryId: string) => {
     toast({ title: "Coming Soon", description: `Edit functionality for category ${categoryId} is not yet implemented.`});
@@ -185,9 +212,6 @@ export default function VendorMenuPage() {
     toast({ title: "Coming Soon", description: `View functionality for item ${itemId} is not yet implemented.`});
   };
 
-  const handleDeleteItem = (itemId: string) => {
-    toast({ title: "Coming Soon", description: `Delete functionality for item ${itemId} is not yet implemented.`});
-  };
 
   return (
     <div className="container mx-auto px-4 py-8 animate-in fade-in duration-500">
@@ -236,10 +260,10 @@ export default function VendorMenuPage() {
         </Dialog>
       </header>
 
-      {/* Item Dialog */}
+      {/* Item Dialog (Add/Edit) */}
       <Dialog open={isItemDialogOpen} onOpenChange={(isOpen) => {
         setIsItemDialogOpen(isOpen);
-        if (!isOpen) { // Reset states when dialog closes
+        if (!isOpen) { 
             setEditingItem(null);
             setCurrentItemCategoryId(null);
         }
@@ -283,6 +307,26 @@ export default function VendorMenuPage() {
         </DialogContent>
       </Dialog>
 
+      {/* Delete Item Confirmation Dialog */}
+      <AlertDialog open={isDeleteItemDialogOpen} onOpenChange={setIsDeleteItemDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the item
+              &quot;{itemToDelete?.itemName}&quot; from your menu.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setItemToDelete(null)} disabled={isDeletingItem}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDeleteItem} disabled={isDeletingItem} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {isDeletingItem && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Delete Item
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
 
       {menuCategories.map(category => (
         <Card key={category.id} className="mb-8 shadow-md">
@@ -321,7 +365,7 @@ export default function VendorMenuPage() {
                       <TableCell className="text-right">
                         <Button variant="ghost" size="icon" className="mr-1" onClick={() => handleViewItem(item.id)}><Eye className="h-4 w-4 text-muted-foreground" /></Button>
                         <Button variant="ghost" size="icon" className="mr-1" onClick={() => handleOpenEditItemDialog(category.id, item)}><Edit className="h-4 w-4 text-muted-foreground" /></Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDeleteItem(item.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleOpenDeleteItemDialog(category.id, item)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -340,6 +384,4 @@ export default function VendorMenuPage() {
       ))}
     </div>
   );
-
-    
-
+}
