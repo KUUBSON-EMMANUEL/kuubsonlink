@@ -13,22 +13,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { PlusCircle, Percent, Gift, Edit, Trash2, Loader2, Truck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-// Placeholder promotions data
-const initialPromotions: Promotion[] = [
-  { id: "PROMO001", name: "Weekend Special", type: "Discount", value: "15% off all pizzas", status: "Active" },
-  { id: "PROMO002", name: "Lunch Combo Deal", type: "Fixed Price", value: "Burger + Fries + Drink for $10", status: "Active" },
-  { id: "PROMO003", name: "Free Delivery Friday", type: "Free Delivery", value: "Free delivery on orders over $20", status: "Inactive" },
-];
-
+// Define PromotionType and Promotion interface
 type PromotionType = "Discount" | "Fixed Price" | "Free Delivery";
 
 interface Promotion {
   id: string;
   name: string;
   type: PromotionType;
-  value: string;
+  value: string; // e.g., "15% off", "$5 off", "Free Drink with Main Course"
   status: "Active" | "Inactive";
 }
+
+// Placeholder promotions data
+const initialPromotions: Promotion[] = [
+  { id: "PROMO001", name: "Weekend Special", type: "Discount", value: "15% off all pizzas", status: "Active" },
+  { id: "PROMO002", name: "Lunch Combo Deal", type: "Fixed Price", value: "Burger + Fries + Drink for $10", status: "Active" },
+  { id: "PROMO003", name: "Free Delivery Friday", type: "Free Delivery", value: "Free delivery on orders over $20", status: "Inactive" },
+];
 
 
 export default function VendorPromotionsPage() {
@@ -38,23 +39,26 @@ export default function VendorPromotionsPage() {
   const [editingPromotion, setEditingPromotion] = useState<Promotion | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Form state for the dialog
   const [newPromoName, setNewPromoName] = useState("");
   const [newPromoType, setNewPromoType] = useState<PromotionType>("Discount");
   const [newPromoValue, setNewPromoValue] = useState("");
   const [newPromoActive, setNewPromoActive] = useState(true);
 
+  // State for delete confirmation
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [promotionToDelete, setPromotionToDelete] = useState<Promotion | null>(null);
 
 
   useEffect(() => {
-    if (editingPromotion) {
+    // Populate form when editingPromotion changes or dialog opens for editing
+    if (isPromotionDialogOpen && editingPromotion) {
       setNewPromoName(editingPromotion.name);
       setNewPromoType(editingPromotion.type);
       setNewPromoValue(editingPromotion.value);
       setNewPromoActive(editingPromotion.status === "Active");
-    } else {
-      // Reset form for "create" mode
+    } else if (isPromotionDialogOpen && !editingPromotion) {
+      // Reset form for "create" mode when dialog opens
       setNewPromoName("");
       setNewPromoType("Discount");
       setNewPromoValue("");
@@ -63,32 +67,38 @@ export default function VendorPromotionsPage() {
   }, [editingPromotion, isPromotionDialogOpen]);
 
   const handleOpenCreateDialog = () => {
-    setEditingPromotion(null);
+    setEditingPromotion(null); // Ensure we are in "create" mode
+    // Fields will be reset by useEffect or can be explicitly reset here
+    setNewPromoName("");
+    setNewPromoType("Discount");
+    setNewPromoValue("");
+    setNewPromoActive(true);
     setIsPromotionDialogOpen(true);
   };
 
   const handleOpenEditDialog = (promo: Promotion) => {
     setEditingPromotion(promo);
+    // useEffect will populate the form fields
     setIsPromotionDialogOpen(true);
   };
 
   const handleSavePromotion = async () => {
-    if (!newPromoName || !newPromoValue) {
+    if (!newPromoName.trim() || !newPromoValue.trim()) {
       toast({
         title: "Missing Information",
-        description: "Please fill in all required fields for the promotion.",
+        description: "Promotion name and value/details are required.",
         variant: "destructive",
       });
       return;
     }
     setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1000)); 
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
 
     if (editingPromotion) {
-      setPromotions(prev => 
-        prev.map(p => 
-          p.id === editingPromotion.id 
-            ? { ...p, name: newPromoName, type: newPromoType, value: newPromoValue, status: newPromoActive ? "Active" : "Inactive" } 
+      setPromotions(prev =>
+        prev.map(p =>
+          p.id === editingPromotion.id
+            ? { ...p, name: newPromoName, type: newPromoType, value: newPromoValue, status: newPromoActive ? "Active" : "Inactive" }
             : p
         )
       );
@@ -98,7 +108,7 @@ export default function VendorPromotionsPage() {
       });
     } else {
       const newPromotion: Promotion = {
-        id: `PROMO${String(Date.now()).slice(-6)}`,
+        id: `PROMO${String(Date.now()).slice(-6)}`, // Simple unique ID
         name: newPromoName,
         type: newPromoType,
         value: newPromoValue,
@@ -113,7 +123,18 @@ export default function VendorPromotionsPage() {
 
     setIsSubmitting(false);
     setIsPromotionDialogOpen(false);
-    setEditingPromotion(null);
+    setEditingPromotion(null); // Reset editing state
+  };
+  
+  const handleToggleStatus = async (promoId: string, currentStatus: "Active" | "Inactive") => {
+    const newStatus = currentStatus === "Active" ? "Inactive" : "Active";
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 300));
+    setPromotions(prev => 
+        prev.map(p => p.id === promoId ? {...p, status: newStatus} : p)
+    );
+    const promo = promotions.find(p => p.id === promoId);
+    toast({title: `"${promo?.name}" ${newStatus === "Active" ? "activated" : "deactivated"}`});
   };
 
   const handleDeletePromotionClick = (promo: Promotion) => {
@@ -123,8 +144,8 @@ export default function VendorPromotionsPage() {
 
   const handleConfirmDelete = async () => {
     if (!promotionToDelete) return;
-    setIsSubmitting(true); // Use same submitting state for loading indicator
-    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call
+    setIsSubmitting(true); 
+    await new Promise(resolve => setTimeout(resolve, 500)); 
 
     setPromotions(prev => prev.filter(p => p.id !== promotionToDelete.id));
     toast({
@@ -149,9 +170,10 @@ export default function VendorPromotionsPage() {
         </Button>
       </header>
 
+      {/* Promotion Create/Edit Dialog */}
       <Dialog open={isPromotionDialogOpen} onOpenChange={(isOpen) => {
         setIsPromotionDialogOpen(isOpen);
-        if (!isOpen) setEditingPromotion(null); 
+        if (!isOpen) setEditingPromotion(null); // Reset editing state when dialog closes
       }}>
         <DialogContent className="sm:max-w-[480px]">
           <DialogHeader>
@@ -171,18 +193,19 @@ export default function VendorPromotionsPage() {
                 onChange={(e) => setNewPromoName(e.target.value)}
                 className="col-span-3"
                 placeholder="e.g., Summer Sale"
+                disabled={isSubmitting}
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="promoType" className="text-right">
                 Type
               </Label>
-              <Select value={newPromoType} onValueChange={(value) => setNewPromoType(value as PromotionType)}>
+              <Select value={newPromoType} onValueChange={(value) => setNewPromoType(value as PromotionType)} disabled={isSubmitting}>
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="Select promotion type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Discount">Percentage Discount</SelectItem>
+                  <SelectItem value="Discount">Percentage/Fixed Discount</SelectItem>
                   <SelectItem value="Fixed Price">Fixed Price Deal</SelectItem>
                   <SelectItem value="Free Delivery">Free Delivery</SelectItem>
                 </SelectContent>
@@ -198,19 +221,21 @@ export default function VendorPromotionsPage() {
                 onChange={(e) => setNewPromoValue(e.target.value)}
                 className="col-span-3"
                 placeholder="e.g., 15% off, $5 off, Free Drink"
+                disabled={isSubmitting}
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="promoStatus" className="text-right">
+              <Label htmlFor="promoStatusToggle" className="text-right">
                 Status
               </Label>
               <div className="col-span-3 flex items-center space-x-2">
                   <Switch
-                      id="promoStatus"
+                      id="promoStatusToggle"
                       checked={newPromoActive}
                       onCheckedChange={setNewPromoActive}
+                      disabled={isSubmitting}
                   />
-                  <Label htmlFor="promoStatus" className="text-sm font-normal">
+                  <Label htmlFor="promoStatusToggle" className="text-sm font-normal">
                       {newPromoActive ? "Active" : "Inactive"}
                   </Label>
               </div>
@@ -232,7 +257,7 @@ export default function VendorPromotionsPage() {
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete the promotion
               &quot;{promotionToDelete?.name}&quot;.
@@ -242,7 +267,7 @@ export default function VendorPromotionsPage() {
             <AlertDialogCancel onClick={() => setPromotionToDelete(null)} disabled={isSubmitting}>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmDelete} disabled={isSubmitting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Delete
+              Delete Promotion
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -265,10 +290,10 @@ export default function VendorPromotionsPage() {
                       </CardTitle>
                       <CardDescription className="text-xs">{promo.type}</CardDescription>
                     </div>
-                     <Switch checked={promo.status === "Active"} onCheckedChange={(checked) => {
-                        setPromotions(prev => prev.map(p => p.id === promo.id ? {...p, status: checked ? "Active" : "Inactive"} : p));
-                        toast({title: `"${promo.name}" ${checked ? "activated" : "deactivated"}`});
-                     }}/>
+                     <Switch 
+                        checked={promo.status === "Active"} 
+                        onCheckedChange={() => handleToggleStatus(promo.id, promo.status)}
+                     />
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -323,4 +348,3 @@ export default function VendorPromotionsPage() {
     </div>
   );
 }
-
