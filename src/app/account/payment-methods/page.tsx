@@ -34,10 +34,10 @@ export default function PaymentMethodsPage() {
     );
   }
 
-  const handleAddNewPaymentMethod = () => {
+  const handleComingSoon = (feature: string) => {
     toast({
       title: "Coming Soon!",
-      description: "Adding and managing payment methods will be available in a future update.",
+      description: `${feature} functionality will be available in a future update.`,
     });
   };
 
@@ -53,7 +53,7 @@ export default function PaymentMethodsPage() {
       </header>
 
       <div className="mb-6 text-right">
-        <Button onClick={handleAddNewPaymentMethod}>
+        <Button onClick={() => handleComingSoon("Adding new payment methods")}>
           <PlusCircle className="mr-2 h-4 w-4" /> Add New Payment Method
         </Button>
       </div>
@@ -64,7 +64,7 @@ export default function PaymentMethodsPage() {
             <CreditCard className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <CardTitle className="text-xl font-headline mb-2">No Payment Methods Saved</CardTitle>
             <CardDescription className="mb-4">You haven&apos;t added any payment methods yet.</CardDescription>
-            <Button onClick={handleAddNewPaymentMethod}>Add Your First Payment Method</Button>
+            <Button onClick={() => handleComingSoon("Adding your first payment method")}>Add Your First Payment Method</Button>
           </CardContent>
         </Card>
       ) : (
@@ -78,8 +78,8 @@ export default function PaymentMethodsPage() {
                     {method.isDefault && <span className="ml-2 text-xs bg-accent text-accent-foreground px-2 py-0.5 rounded-full">Default</span>}
                   </CardTitle>
                   <div>
-                     <Button variant="ghost" size="sm" className="mr-2" onClick={handleAddNewPaymentMethod}>Edit</Button>
-                    <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive-foreground hover:bg-destructive" onClick={() => toast({title: "Coming Soon", description:"Deleting payment methods will be available later."})}>Delete</Button>
+                     <Button variant="ghost" size="sm" className="mr-2" onClick={() => handleComingSoon("Editing payment methods")}>Edit</Button>
+                    <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive-foreground hover:bg-destructive" onClick={() => handleComingSoon("Deleting payment methods")}>Delete</Button>
                   </div>
                 </div>
               </CardHeader>

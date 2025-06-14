@@ -34,10 +34,10 @@ export default function SavedAddressesPage() {
     );
   }
 
-  const handleAddNewAddress = () => {
+  const handleComingSoon = (feature: string) => {
     toast({
       title: "Coming Soon!",
-      description: "Adding and managing addresses will be available in a future update.",
+      description: `${feature} functionality will be available in a future update.`,
     });
   };
 
@@ -53,7 +53,7 @@ export default function SavedAddressesPage() {
       </header>
 
       <div className="mb-6 text-right">
-        <Button onClick={handleAddNewAddress}>
+        <Button onClick={() => handleComingSoon("Adding new addresses")}>
           <PlusCircle className="mr-2 h-4 w-4" /> Add New Address
         </Button>
       </div>
@@ -64,7 +64,7 @@ export default function SavedAddressesPage() {
             <MapPin className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <CardTitle className="text-xl font-headline mb-2">No Addresses Saved</CardTitle>
             <CardDescription className="mb-4">You haven&apos;t saved any addresses yet.</CardDescription>
-            <Button onClick={handleAddNewAddress}>Add Your First Address</Button>
+            <Button onClick={() => handleComingSoon("Adding your first address")}>Add Your First Address</Button>
           </CardContent>
         </Card>
       ) : (
@@ -77,8 +77,8 @@ export default function SavedAddressesPage() {
                     {address.type} {address.isDefault && <span className="ml-2 text-xs bg-accent text-accent-foreground px-2 py-0.5 rounded-full">Default</span>}
                   </CardTitle>
                   <div>
-                    <Button variant="ghost" size="sm" className="mr-2" onClick={handleAddNewAddress}>Edit</Button>
-                    <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive-foreground hover:bg-destructive" onClick={() => toast({title: "Coming Soon", description:"Deleting addresses will be available later."})}>Delete</Button>
+                    <Button variant="ghost" size="sm" className="mr-2" onClick={() => handleComingSoon("Editing addresses")}>Edit</Button>
+                    <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive-foreground hover:bg-destructive" onClick={() => handleComingSoon("Deleting addresses")}>Delete</Button>
                   </div>
                 </div>
               </CardHeader>
