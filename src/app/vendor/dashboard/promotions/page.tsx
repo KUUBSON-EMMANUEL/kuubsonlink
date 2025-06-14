@@ -9,21 +9,30 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { PlusCircle, Percent, Gift, Edit, Trash2, Loader2, Truck } from "lucide-react"; // Added Truck here
+import { PlusCircle, Percent, Gift, Edit, Trash2, Loader2, Truck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 // Placeholder promotions data
 const initialPromotions = [
-  { id: "PROMO001", name: "Weekend Special", type: "Discount", value: "15% off all pizzas", status: "Active" },
-  { id: "PROMO002", name: "Lunch Combo Deal", type: "Fixed Price", value: "Burger + Fries + Drink for $10", status: "Active" },
-  { id: "PROMO003", name: "Free Delivery Friday", type: "Free Delivery", value: "Free delivery on orders over $20", status: "Inactive" },
+  { id: "PROMO001", name: "Weekend Special", type: "Discount" as PromotionType, value: "15% off all pizzas", status: "Active" },
+  { id: "PROMO002", name: "Lunch Combo Deal", type: "Fixed Price" as PromotionType, value: "Burger + Fries + Drink for $10", status: "Active" },
+  { id: "PROMO003", name: "Free Delivery Friday", type: "Free Delivery" as PromotionType, value: "Free delivery on orders over $20", status: "Inactive" },
 ];
 
 type PromotionType = "Discount" | "Fixed Price" | "Free Delivery";
 
+interface Promotion {
+  id: string;
+  name: string;
+  type: PromotionType;
+  value: string;
+  status: "Active" | "Inactive";
+}
+
+
 export default function VendorPromotionsPage() {
   const { toast } = useToast();
-  const [promotions, setPromotions] = useState(initialPromotions); // In a real app, this would come from a backend
+  const [promotions, setPromotions] = useState<Promotion[]>(initialPromotions);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -45,20 +54,19 @@ export default function VendorPromotionsPage() {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const newPromotion = {
-      id: `PROMO${String(promotions.length + 1).padStart(3, '0')}`, // Simple ID generation
+    const newPromotion: Promotion = {
+      id: `PROMO${String(Date.now()).slice(-6)}`, // More unique ID for local state
       name: newPromoName,
       type: newPromoType,
       value: newPromoValue,
       status: newPromoActive ? "Active" : "Inactive",
     };
-    console.log("New Promotion Data:", newPromotion);
-    // For now, we'll just log and show a toast. In a real app, you'd add it to state/DB.
-    // setPromotions(prev => [...prev, newPromotion]); 
+    
+    setPromotions(prev => [newPromotion, ...prev]); 
 
     toast({
       title: "Promotion Created!",
-      description: `"${newPromoName}" has been successfully created (logged to console).`,
+      description: `"${newPromoName}" has been successfully created and added to the list.`,
     });
 
     // Reset form and close dialog
@@ -234,3 +242,4 @@ export default function VendorPromotionsPage() {
     </div>
   );
 }
+
