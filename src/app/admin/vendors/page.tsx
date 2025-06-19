@@ -23,7 +23,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Briefcase, MoreHorizontal, Eye, CheckCircle, XCircle, ShieldAlert, Loader2, User, Mail, MapPin, Hash, CalendarDays, Utensils, Tag } from "lucide-react";
+import { Briefcase, MoreHorizontal, Eye, CheckCircle, XCircle, ShieldAlert, Loader2, User, Mail, MapPin, Hash, CalendarDays, Utensils, Tag, ShieldCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 type VendorStatus = "Active" | "Pending Approval" | "Suspended";
@@ -257,4 +257,3 @@ export default function AdminVendorManagementPage() {
     </div>
   );
 }
-
