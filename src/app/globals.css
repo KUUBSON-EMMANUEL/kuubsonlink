@@ -91,7 +91,6 @@ body {
   body {
     @apply bg-background text-foreground; /* bg-background provides fallback color */
     /* Background image setup */
-    background-image: url('https://placehold.co/1920x1080.png');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
