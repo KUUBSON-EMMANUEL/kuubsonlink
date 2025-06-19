@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { NAV_LINKS_MAIN, NAV_LINKS_GUEST } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Utensils, LogOut, UserCircle, Briefcase, Shield } from 'lucide-react'; 
+import { Utensils, LogOut, UserCircle, Briefcase, Shield, Menu } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import {
   DropdownMenu,
@@ -16,6 +16,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetClose
+} from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 
@@ -29,10 +35,10 @@ export function Navbar() {
   if (currentUser) {
     const displayName = currentUser.displayName || "";
     const email = currentUser.email || "";
-    isVendor = displayName.toLowerCase().includes('vendor') || 
+    isVendor = displayName.toLowerCase().includes('vendor') ||
                email.toLowerCase() === 'vendor@example.com';
-    
-    isAdmin = email.toLowerCase() === 'admin@example.com' || 
+
+    isAdmin = email.toLowerCase() === 'admin@example.com' ||
               displayName.toLowerCase().includes('admin');
   }
 
@@ -61,6 +67,57 @@ export function Navbar() {
     );
   }
 
+  const mainNavLinks = NAV_LINKS_MAIN.map((item) => (
+    <Link
+      key={item.href}
+      href={item.href}
+      className={cn(
+        "px-3 py-2 rounded-md text-sm font-medium transition-colors",
+        pathname === item.href
+          ? "bg-primary/10 text-primary"
+          : "text-foreground hover:bg-muted hover:text-accent-foreground"
+      )}
+    >
+      <span className="flex items-center gap-2">
+        {item.icon && <item.icon className="h-4 w-4" />}
+        {item.label}
+      </span>
+    </Link>
+  ));
+
+  const guestNavLinks = NAV_LINKS_GUEST.map((item) => (
+     <Link key={item.href} href={item.href}>
+       <Button 
+          variant={item.href === '/vendor/register' ? "default" : "outline"} 
+          size="sm" 
+          className="flex items-center gap-1.5"
+        >
+         {item.icon && <item.icon className="h-4 w-4" />}
+         {item.label}
+       </Button>
+    </Link>
+  ));
+
+  const mobileSheetLinks = NAV_LINKS_MAIN.map((item) => (
+    <SheetClose asChild key={`${item.href}-mobile`}>
+      <Link
+        href={item.href}
+        className={cn(
+          "block px-3 py-2 rounded-md text-base font-medium transition-colors",
+          pathname === item.href
+            ? "bg-primary/10 text-primary"
+            : "text-foreground hover:bg-muted hover:text-accent-foreground"
+        )}
+      >
+        <span className="flex items-center gap-2">
+          {item.icon && <item.icon className="h-5 w-5" />}
+          {item.label}
+        </span>
+      </Link>
+    </SheetClose>
+  ));
+
+
   return (
     <header className="bg-card shadow-md sticky top-0 z-50">
       <nav className="container mx-auto px-4 py-3 flex justify-between items-center">
@@ -68,31 +125,14 @@ export function Navbar() {
           <Utensils className="h-8 w-8 text-primary" />
           <span className="text-2xl font-headline font-bold text-primary">KuubsonLink</span>
         </Link>
-        
+
         <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
-          {NAV_LINKS_MAIN.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                pathname === item.href
-                  ? "bg-primary/10 text-primary"
-                  : "text-foreground hover:bg-muted hover:text-accent-foreground"
-              )}
-            >
-              <span className="flex items-center gap-2">
-                {item.icon && <item.icon className="h-4 w-4" />}
-                {item.label}
-              </span>
-            </Link>
-          ))}
-          {/* New Admin Button visible in the main nav bar for admins */}
+          {mainNavLinks}
           {currentUser && isAdmin && (
             <Link href="/admin/dashboard">
-              <Button 
-                variant={pathname.startsWith("/admin/") ? "secondary" : "ghost"} 
-                size="sm" 
+              <Button
+                variant={pathname.startsWith("/admin/") ? "secondary" : "ghost"}
+                size="sm"
                 className="flex items-center gap-1.5"
               >
                 <Shield className="h-4 w-4" />
@@ -139,7 +179,6 @@ export function Navbar() {
                     </Link>
                   </DropdownMenuItem>
                 )}
-                {/* Existing Admin link in dropdown, kept for multiple access points */}
                 {isAdmin && (
                   <DropdownMenuItem asChild>
                     <Link href="/admin/dashboard" className="flex items-center w-full">
@@ -156,22 +195,41 @@ export function Navbar() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            NAV_LINKS_GUEST.map((item) => (
-              <Link key={item.href} href={item.href}>
-                 <Button variant={item.href === '/vendor/register' ? "default" : "outline"} size="sm" className="flex items-center gap-1.5">
-                   {item.icon && <item.icon className="h-4 w-4" />}
-                   {item.label}
-                 </Button>
-              </Link>
-            ))
+            <div className="hidden md:flex items-center space-x-2">
+              {guestNavLinks}
+            </div>
           )}
-          <Button variant="ghost" size="icon" className="md:hidden">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
-            <span className="sr-only">Open menu</span>
-          </Button>
+          <div className="md:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Open menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[250px] sm:w-[300px]">
+                 <div className="flex flex-col space-y-3 pt-6">
+                    {mobileSheetLinks}
+                    <hr className="my-3" />
+                    {currentUser ? (
+                       <div className="px-3">
+                         <Button onClick={logout} className="w-full justify-start text-destructive hover:text-destructive-foreground hover:bg-destructive">
+                           <LogOut className="mr-2 h-5 w-5" /> Log out
+                         </Button>
+                       </div>
+                    ) : (
+                      guestNavLinks.map((link, index) => (
+                        <SheetClose asChild key={`guest-mobile-${index}`}>
+                          {link}
+                        </SheetClose>
+                      ))
+                    )}
+                 </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </nav>
     </header>
   );
 }
-

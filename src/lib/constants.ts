@@ -1,6 +1,6 @@
 
 import type { NavItem } from '@/lib/types';
-import { Home, Store, UserCircle, Bot, LifeBuoy, LogIn, Briefcase, LogOut } from 'lucide-react';
+import { Home, Store, UserCircle, Bot, LifeBuoy, LogIn, Briefcase, LogOut, UserPlus } from 'lucide-react'; // Added UserPlus
 
 export const NAV_LINKS_MAIN: NavItem[] = [
   { href: '/', label: 'Home', icon: Home },
@@ -26,6 +26,7 @@ export const NAV_LINKS_AUTHENTICATED_MENU: NavItem[] = [
 
 export const NAV_LINKS_GUEST: NavItem[] = [
   { href: '/auth/login', label: 'Login', icon: LogIn },
+  { href: '/auth/signup', label: 'Sign Up', icon: UserPlus }, // Added Sign Up link for customers
   { href: '/vendor/register', label: 'Become a Vendor', icon: Briefcase },
 ];
 
