@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 const adminSections = [
   { title: "User Management", description: "View and manage customer accounts.", icon: Users, href: "/admin/users", disabled: false },
   { title: "Vendor Management", description: "Approve, view, and manage vendor accounts.", icon: Briefcase, href: "/admin/vendors", disabled: false },
-  { title: "Site Analytics", description: "Overview of platform usage and key metrics.", icon: BarChart2, href: "/admin/analytics", disabled: true },
+  { title: "Site Analytics", description: "Overview of platform usage and key metrics.", icon: BarChart2, href: "/admin/analytics", disabled: false },
   { title: "Platform Settings", description: "Configure global site settings.", icon: Settings, href: "/admin/settings", disabled: true },
 ];
 
@@ -51,28 +51,28 @@ export default function AdminDashboardPage() {
                     <h3 className="text-sm font-medium text-muted-foreground">Total Users</h3>
                     <Users className="h-5 w-5 text-primary" />
                 </div>
-                <p className="text-3xl font-bold text-foreground">1,234</p> {/* Placeholder */}
+                <p className="text-3xl font-bold text-foreground">1,234</p> 
             </div>
             <div className="p-4 bg-secondary/50 rounded-lg shadow">
                  <div className="flex items-center justify-between mb-1">
                     <h3 className="text-sm font-medium text-muted-foreground">Total Vendors</h3>
                     <Briefcase className="h-5 w-5 text-primary" />
                 </div>
-                <p className="text-3xl font-bold text-foreground">56</p> {/* Placeholder */}
+                <p className="text-3xl font-bold text-foreground">56</p> 
             </div>
             <div className="p-4 bg-secondary/50 rounded-lg shadow">
                 <div className="flex items-center justify-between mb-1">
                     <h3 className="text-sm font-medium text-muted-foreground">Total Orders</h3>
                     <ShoppingBag className="h-5 w-5 text-primary" />
                 </div>
-                <p className="text-3xl font-bold text-foreground">7,890</p> {/* Placeholder */}
+                <p className="text-3xl font-bold text-foreground">7,890</p> 
             </div>
              <div className="p-4 bg-secondary/50 rounded-lg shadow">
                 <div className="flex items-center justify-between mb-1">
                     <h3 className="text-sm font-medium text-muted-foreground">Pending Approvals</h3>
                     <ShieldCheck className="h-5 w-5 text-primary" />
                 </div>
-                <p className="text-3xl font-bold text-foreground">3</p> {/* Placeholder */}
+                <p className="text-3xl font-bold text-foreground">3</p> 
             </div>
         </CardContent>
       </Card>
