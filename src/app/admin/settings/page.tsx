@@ -8,14 +8,20 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Settings, Brush, ShieldAlert, Mail, Info } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 export default function AdminSettingsPage() {
   const { toast } = useToast();
 
+  // State for General Settings (example)
+  const [siteName, setSiteName] = useState("VendorLink");
+  const [adminEmail, setAdminEmail] = useState("support@vendorlink.com");
+  const [registrationOpen, setRegistrationOpen] = useState(true);
+
   const handlePlaceholderSave = (settingName: string) => {
     toast({
       title: "Setting Saved (Placeholder)",
-      description: `${settingName} settings would be saved to a backend in a real application.`,
+      description: `${settingName} settings would be saved to a backend in a real application. (Current values: Site: ${siteName}, Email: ${adminEmail}, Registrations: ${registrationOpen})`,
     });
   };
 
@@ -40,21 +46,21 @@ export default function AdminSettingsPage() {
           <CardContent className="space-y-6">
             <div className="space-y-1">
               <Label htmlFor="siteName">Site Name</Label>
-              <Input id="siteName" defaultValue="VendorLink" disabled />
+              <Input id="siteName" value={siteName} onChange={(e) => setSiteName(e.target.value)} />
             </div>
             <div className="space-y-1">
               <Label htmlFor="adminEmail">Default Admin Email</Label>
-              <Input id="adminEmail" type="email" defaultValue="support@vendorlink.com" disabled />
+              <Input id="adminEmail" type="email" value={adminEmail} onChange={(e) => setAdminEmail(e.target.value)} />
             </div>
             <div className="flex items-center space-x-2">
-              <Switch id="registrationOpen" defaultChecked disabled />
+              <Switch id="registrationOpen" checked={registrationOpen} onCheckedChange={setRegistrationOpen} />
               <Label htmlFor="registrationOpen" className="text-sm font-medium">
                 Allow New User Registrations
               </Label>
             </div>
           </CardContent>
           <CardFooter className="border-t pt-6">
-            <Button onClick={() => handlePlaceholderSave("General")} disabled>Save General Settings</Button>
+            <Button onClick={() => handlePlaceholderSave("General")}>Save General Settings</Button>
           </CardFooter>
         </Card>
 
@@ -130,7 +136,7 @@ export default function AdminSettingsPage() {
         <Info className="inline h-5 w-5 mr-2 mb-0.5 text-primary" />
         <strong>Developer Note:</strong> The settings on this page are illustrative placeholders.
         Implementing these features would require backend integration and database storage.
-        The save buttons are currently disabled.
+        Most save buttons are currently disabled or show placeholder toasts.
       </div>
     </div>
   );
