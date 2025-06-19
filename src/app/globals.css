@@ -9,25 +9,25 @@ body {
 
 @layer base {
   :root {
-    --background: {{backgroundColor}}; /* #F8E6DE Desaturated light orange */
+    --background: 120 60% 90%; /* Light Green */
     --foreground: 20 30% 20%; /* #423B38 Dark desaturated orange */
     --card: 20 60% 97%; /* #FDF7F5 Very light tint of background's hue */
     --card-foreground: 20 30% 20%; /* #423B38 */
     --popover: 20 60% 97%; /* #FDF7F5 */
     --popover-foreground: 20 30% 20%; /* #423B38 */
-    --primary: {{primaryColor}}; /* #E64A19 Saturated reddish-orange */
+    --primary: 16 80% 50%; /* #E64A19 Saturated reddish-orange (Default) */
     --primary-foreground: 0 0% 100%; /* #FFFFFF White */
     --secondary: 18 70% 85%; /* #F5DBCF Lighter shade of background */
     --secondary-foreground: 16 70% 35%; /* #C46342 Darker orange for text on secondary */
     --muted: 20 60% 88%; /* #F6E2DA */
     --muted-foreground: 20 30% 45%; /* #8C7F7A Muted text color */
-    --accent: {{accentColor}}; /* #FFAB40 Yellow-orange */
+    --accent: 36 100% 62%; /* #FFAB40 Yellow-orange (Default) */
     --accent-foreground: 20 30% 10%; /* #211E1D Very dark for text on accent */
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 20 35% 82%; /* #E0CFC7 Softer border color */
     --input: 20 35% 82%; /* #E0CFC7 */
-    --ring: {{primaryColor}}; /* #E64A19 Primary color for rings */
+    --ring: 16 80% 50%; /* #E64A19 Primary color for rings (Default) */
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
@@ -38,12 +38,12 @@ body {
     /* Sidebar colors adjusted to match the theme */
     --sidebar-background: 20 60% 95%; /* Slightly lighter than main background */
     --sidebar-foreground: 20 30% 25%; /* Similar to main foreground */
-    --sidebar-primary: {{primaryColor}}; /* Main primary color */
+    --sidebar-primary: 16 80% 50%; /* Main primary color (Default) */
     --sidebar-primary-foreground: 0 0% 100%; /* White */
-    --sidebar-accent: {{accentColor}}; /* Main accent color */
+    --sidebar-accent: 36 100% 62%; /* Main accent color (Default) */
     --sidebar-accent-foreground: 20 30% 10%; /* Dark text for accent */
     --sidebar-border: 20 35% 80%; /* Similar to main border */
-    --sidebar-ring: {{primaryColor}}; /* Main primary for ring */
+    --sidebar-ring: 16 80% 50%; /* Main primary for ring (Default) */
   }
 
   .dark {
@@ -102,5 +102,4 @@ body {
     -moz-osx-font-smoothing: grayscale;
   }
 }
-
     
