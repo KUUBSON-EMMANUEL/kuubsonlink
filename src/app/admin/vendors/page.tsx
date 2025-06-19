@@ -13,8 +13,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Briefcase, MoreHorizontal, Eye, CheckCircle, XCircle, ShieldAlert, Loader2 } from "lucide-react";
+import { Briefcase, MoreHorizontal, Eye, CheckCircle, XCircle, ShieldAlert, Loader2, User, Mail, MapPin, Hash, CalendarDays, Utensils, Tag } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 type VendorStatus = "Active" | "Pending Approval" | "Suspended";
@@ -22,18 +31,20 @@ type VendorStatus = "Active" | "Pending Approval" | "Suspended";
 interface AdminVendor {
   id: string;
   restaurantName: string;
+  contactName: string;
   contactEmail: string;
+  address: string;
   cuisineType: string;
   status: VendorStatus;
   joinedDate: string;
 }
 
 const placeholderAdminVendors: AdminVendor[] = [
-  { id: "vendor_1", restaurantName: "The Gourmet Kitchen", contactEmail: "john.chef@example.com", cuisineType: "Modern European", status: "Active", joinedDate: "2024-01-15" },
-  { id: "vendor_2", restaurantName: "Spice Route Express", contactEmail: "spice.route@example.com", cuisineType: "Asian Fusion", status: "Active", joinedDate: "2024-02-10" },
-  { id: "vendor_3", restaurantName: "Pizza Heaven Pizzeria", contactEmail: "pizza.heaven@example.com", cuisineType: "Italian", status: "Pending Approval", joinedDate: "2024-03-01" },
-  { id: "vendor_4", restaurantName: "Burger Barn", contactEmail: "burgers@example.com", cuisineType: "American Fast Food", status: "Suspended", joinedDate: "2023-12-05" },
-  { id: "vendor_5", restaurantName: "Taco Town", contactEmail: "tacos@example.com", cuisineType: "Mexican", status: "Pending Approval", joinedDate: "2024-03-20" },
+  { id: "vendor_1", restaurantName: "The Gourmet Kitchen", contactName: "John Chef", contactEmail: "john.chef@example.com", address: "123 Foodie Lane, Gourmet City", cuisineType: "Modern European", status: "Active", joinedDate: "2024-01-15" },
+  { id: "vendor_2", restaurantName: "Spice Route Express", contactName: "Aisha Khan", contactEmail: "spice.route@example.com", address: "456 Spice Avenue, Flavor Town", cuisineType: "Asian Fusion", status: "Active", joinedDate: "2024-02-10" },
+  { id: "vendor_3", restaurantName: "Pizza Heaven Pizzeria", contactName: "Mario Rossi", contactEmail: "pizza.heaven@example.com", address: "789 Pizza Street, Cheesy Ville", cuisineType: "Italian", status: "Pending Approval", joinedDate: "2024-03-01" },
+  { id: "vendor_4", restaurantName: "Burger Barn", contactName: "Patty O'Furniture", contactEmail: "burgers@example.com", address: "101 Burger Blvd, Pattyville", cuisineType: "American Fast Food", status: "Suspended", joinedDate: "2023-12-05" },
+  { id: "vendor_5", restaurantName: "Taco Town", contactName: "Carlos Delgado", contactEmail: "tacos@example.com", address: "222 Taco Terrace, Salsaburg", cuisineType: "Mexican", status: "Pending Approval", joinedDate: "2024-03-20" },
 ];
 
 const getStatusBadgeVariant = (status: VendorStatus): "default" | "destructive" | "secondary" | "outline" => {
@@ -52,11 +63,23 @@ const getStatusBadgeVariant = (status: VendorStatus): "default" | "destructive" 
 export default function AdminVendorManagementPage() {
   const { toast } = useToast();
   const [vendors, setVendors] = useState<AdminVendor[]>(placeholderAdminVendors);
-  const [isLoadingAction, setIsLoadingAction] = useState<string | null>(null); // Tracks loading state for specific vendor actions
+  const [isLoadingAction, setIsLoadingAction] = useState<string | null>(null);
+  const [isViewDetailsDialogOpen, setIsViewDetailsDialogOpen] = useState(false);
+  const [selectedVendorForView, setSelectedVendorForView] = useState<AdminVendor | null>(null);
 
   const handleAction = async (vendorId: string, actionType: "approve" | "suspend" | "view") => {
+    if (actionType === "view") {
+      const vendorToView = vendors.find(v => v.id === vendorId);
+      if (vendorToView) {
+        setSelectedVendorForView(vendorToView);
+        setIsViewDetailsDialogOpen(true);
+      } else {
+        toast({ title: "Error", description: "Vendor not found.", variant: "destructive" });
+      }
+      return;
+    }
+
     setIsLoadingAction(`${vendorId}-${actionType}`);
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 750));
 
     if (actionType === "approve") {
@@ -65,9 +88,6 @@ export default function AdminVendorManagementPage() {
     } else if (actionType === "suspend") {
       setVendors(prev => prev.map(v => v.id === vendorId ? { ...v, status: "Suspended" } : v));
       toast({ title: "Vendor Suspended", description: `Vendor ${vendors.find(v=>v.id === vendorId)?.restaurantName} has been suspended.`, variant: "destructive" });
-    } else if (actionType === "view") {
-      // In a real app, this would navigate to a vendor detail page or open a modal
-      toast({ title: "View Details", description: `Viewing details for ${vendors.find(v=>v.id === vendorId)?.restaurantName}. (Not implemented yet)` });
     }
     setIsLoadingAction(null);
   };
@@ -116,8 +136,8 @@ export default function AdminVendorManagementPage() {
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0" disabled={!!isLoadingAction && isLoadingAction.startsWith(vendor.id)}>
-                              {isLoadingAction && isLoadingAction.startsWith(vendor.id) ? <Loader2 className="h-4 w-4 animate-spin"/> : <MoreHorizontal className="h-4 w-4" />}
+                            <Button variant="ghost" className="h-8 w-8 p-0" disabled={!!isLoadingAction && isLoadingAction.startsWith(vendor.id) && !isLoadingAction.endsWith("view")}>
+                              {(isLoadingAction && isLoadingAction.startsWith(vendor.id) && !isLoadingAction.endsWith("view")) ? <Loader2 className="h-4 w-4 animate-spin"/> : <MoreHorizontal className="h-4 w-4" />}
                               <span className="sr-only">Open menu</span>
                             </Button>
                           </DropdownMenuTrigger>
@@ -154,14 +174,87 @@ export default function AdminVendorManagementPage() {
           )}
         </CardContent>
       </Card>
+
+      {selectedVendorForView && (
+        <Dialog open={isViewDetailsDialogOpen} onOpenChange={setIsViewDetailsDialogOpen}>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="font-headline text-primary flex items-center">
+                <Briefcase className="mr-2 h-6 w-6" /> Vendor Details: {selectedVendorForView.restaurantName}
+              </DialogTitle>
+              <DialogDescription>
+                Detailed information for vendor ID: {selectedVendorForView.id}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-3 py-4 max-h-[60vh] overflow-y-auto pr-2">
+              <div className="flex items-start">
+                <Tag className="mr-3 h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-xs text-muted-foreground">Vendor ID</p>
+                  <p className="text-sm font-medium text-foreground">{selectedVendorForView.id}</p>
+                </div>
+              </div>
+               <div className="flex items-start">
+                <User className="mr-3 h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-xs text-muted-foreground">Contact Name</p>
+                  <p className="text-sm font-medium text-foreground">{selectedVendorForView.contactName}</p>
+                </div>
+              </div>
+              <div className="flex items-start">
+                <Mail className="mr-3 h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
+                 <div>
+                  <p className="text-xs text-muted-foreground">Contact Email</p>
+                  <p className="text-sm font-medium text-foreground">{selectedVendorForView.contactEmail}</p>
+                </div>
+              </div>
+              <div className="flex items-start">
+                <MapPin className="mr-3 h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
+                 <div>
+                  <p className="text-xs text-muted-foreground">Address</p>
+                  <p className="text-sm font-medium text-foreground">{selectedVendorForView.address}</p>
+                </div>
+              </div>
+              <div className="flex items-start">
+                <Utensils className="mr-3 h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-xs text-muted-foreground">Cuisine Type</p>
+                  <p className="text-sm font-medium text-foreground">{selectedVendorForView.cuisineType}</p>
+                </div>
+              </div>
+              <div className="flex items-start">
+                <CalendarDays className="mr-3 h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-xs text-muted-foreground">Joined Date</p>
+                  <p className="text-sm font-medium text-foreground">{selectedVendorForView.joinedDate}</p>
+                </div>
+              </div>
+              <div className="flex items-start">
+                <ShieldCheck className="mr-3 h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-xs text-muted-foreground">Status</p>
+                  <Badge variant={getStatusBadgeVariant(selectedVendorForView.status)} className="text-sm">{selectedVendorForView.status}</Badge>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button type="button" variant="outline">Close</Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
        <div className="mt-6 p-4 bg-secondary/30 rounded-md">
         <h3 className="font-semibold text-lg mb-2 font-headline">Developer Note:</h3>
         <p className="text-xs text-muted-foreground">
           This page displays placeholder vendor data. Actions like "Approve", "Suspend", and "Re-activate"
-          update the status locally for demonstration. "View Details" is a placeholder action.
+          update the status locally for demonstration. "View Details" now opens a dialog with more information.
           In a real application, these actions would interact with a backend service.
         </p>
       </div>
     </div>
   );
 }
+
