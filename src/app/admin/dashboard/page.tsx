@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 
 const adminSections = [
   { title: "User Management", description: "View and manage customer accounts.", icon: Users, href: "/admin/users", disabled: false },
-  { title: "Vendor Management", description: "Approve, view, and manage vendor accounts.", icon: Briefcase, href: "/admin/vendors", disabled: true },
+  { title: "Vendor Management", description: "Approve, view, and manage vendor accounts.", icon: Briefcase, href: "/admin/vendors", disabled: false },
   { title: "Site Analytics", description: "Overview of platform usage and key metrics.", icon: BarChart2, href: "/admin/analytics", disabled: true },
   { title: "Platform Settings", description: "Configure global site settings.", icon: Settings, href: "/admin/settings", disabled: true },
 ];
