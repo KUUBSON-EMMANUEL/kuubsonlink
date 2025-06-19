@@ -7,7 +7,7 @@ import * as z from "zod";
 import { useState, useTransition } from "react";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation"; // Added useRouter
+import { useRouter } from "next/navigation"; 
 
 import { Button } from "@/components/ui/button";
 import {
@@ -42,7 +42,7 @@ type VendorRegistrationFormValues = z.infer<typeof vendorRegistrationSchema>;
 export function VendorRegistrationForm() {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
-  const router = useRouter(); // Initialized useRouter
+  const router = useRouter(); 
 
   const form = useForm<VendorRegistrationFormValues>({
     resolver: zodResolver(vendorRegistrationSchema),
@@ -60,18 +60,17 @@ export function VendorRegistrationForm() {
 
   function onSubmit(values: VendorRegistrationFormValues) {
     startTransition(async () => {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500)); 
       
       console.log("Vendor Registration Submitted:", values);
       
       toast({
         title: "Registration Info Received!",
-        description: "Thank you! We'll review your application. Please log in or create an account to eventually access your dashboard.",
-        duration: 5000, // Keep toast a bit longer
+        description: "Thank you! We'll review your application for VendorLink. Please log in or create an account to eventually access your dashboard.",
+        duration: 5000, 
       });
-      form.reset(); // Reset form fields after successful submission
-      router.push('/auth/login'); // Redirect to login page
+      form.reset(); 
+      router.push('/auth/login'); 
     });
   }
 
@@ -79,7 +78,7 @@ export function VendorRegistrationForm() {
     <Card className="w-full max-w-2xl mx-auto shadow-xl">
       <CardHeader>
         <CardTitle className="text-3xl font-headline text-primary">Become a Vendor Partner</CardTitle>
-        <CardDescription>Fill out the form below to start selling on KuubsonLink.</CardDescription>
+        <CardDescription>Fill out the form below to start selling on VendorLink.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -196,7 +195,7 @@ export function VendorRegistrationForm() {
                   </FormControl>
                   <div className="space-y-1 leading-none">
                     <FormLabel>
-                      I agree to the KuubsonLink <a href="/terms" className="text-primary hover:underline">terms and conditions</a>.
+                      I agree to the VendorLink <a href="/terms" className="text-primary hover:underline">terms and conditions</a>.
                     </FormLabel>
                     <FormDescription>
                       Please review our terms before proceeding.
@@ -216,4 +215,3 @@ export function VendorRegistrationForm() {
     </Card>
   );
 }
-

@@ -35,11 +35,13 @@ export function Navbar() {
   if (currentUser) {
     const displayName = currentUser.displayName || "";
     const email = currentUser.email || "";
+    // Check if user is a vendor (e.g., display name contains "vendor" or specific email)
     isVendor = displayName.toLowerCase().includes('vendor') ||
-               email.toLowerCase() === 'vendor@example.com';
+               email.toLowerCase() === 'vendor@example.com'; // Example vendor email
 
-    isAdmin = email.toLowerCase() === 'admin@example.com' ||
-              displayName.toLowerCase().includes('admin');
+    // Check if user is an admin
+    isAdmin = email.toLowerCase() === "admin@anaskuubson.gmail.com" || // Updated admin email
+              displayName.toLowerCase().includes("admin");
   }
 
 
@@ -59,7 +61,7 @@ export function Navbar() {
         <nav className="container mx-auto px-4 py-3 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2">
             <Utensils className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-headline font-bold text-primary">KuubsonLink</span>
+            <span className="text-2xl font-headline font-bold text-primary">VendorLink</span>
           </Link>
           <div className="h-8 w-20 bg-muted rounded animate-pulse"></div>
         </nav>
@@ -88,7 +90,7 @@ export function Navbar() {
   const guestNavLinks = NAV_LINKS_GUEST.map((item) => (
      <Link key={item.href} href={item.href}>
        <Button 
-          variant={item.href === '/vendor/register' ? "default" : "outline"} 
+          variant={item.href === '/vendor/register' || item.href === '/auth/signup' ? "default" : "outline"}
           size="sm" 
           className="flex items-center gap-1.5"
         >
@@ -123,7 +125,7 @@ export function Navbar() {
       <nav className="container mx-auto px-4 py-3 flex justify-between items-center">
         <Link href="/" className="flex items-center gap-2">
           <Utensils className="h-8 w-8 text-primary" />
-          <span className="text-2xl font-headline font-bold text-primary">KuubsonLink</span>
+          <span className="text-2xl font-headline font-bold text-primary">VendorLink</span>
         </Link>
 
         <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
@@ -196,7 +198,11 @@ export function Navbar() {
             </DropdownMenu>
           ) : (
             <div className="hidden md:flex items-center space-x-2">
-              {guestNavLinks}
+              {guestNavLinks.map((linkComponent, index) => (
+                <React.Fragment key={`guest-nav-${index}`}>
+                  {linkComponent}
+                </React.Fragment>
+              ))}
             </div>
           )}
           <div className="md:hidden">
@@ -218,9 +224,9 @@ export function Navbar() {
                          </Button>
                        </div>
                     ) : (
-                      guestNavLinks.map((link, index) => (
+                      guestNavLinks.map((linkComponent, index) => (
                         <SheetClose asChild key={`guest-mobile-${index}`}>
-                          {link}
+                          {linkComponent}
                         </SheetClose>
                       ))
                     )}

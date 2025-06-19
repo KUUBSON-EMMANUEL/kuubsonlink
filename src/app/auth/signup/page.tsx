@@ -12,16 +12,16 @@ import * as z from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { auth } from "@/lib/firebase";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 
 const signupSchema = z.object({
   fullName: z.string().min(2, { message: "Full name must be at least 2 characters." }),
- email: z.string().email("Please enter a valid email address.").min(1, { message: "Email is required." }),
+  email: z.string().email("Please enter a valid email address.").min(1, { message: "Email is required." }),
   password: z.string().min(6, { message: "Password must be at least 6 characters." }).min(1, { message: "Password is required." }),
- confirmPassword: z.string().min(1, { message: "Confirm Password is required." })
+  confirmPassword: z.string().min(1, { message: "Confirm Password is required." })
 }).refine(data => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
@@ -48,18 +48,15 @@ export default function SignupPage() {
     startTransition(async () => {
       try {
         const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
- await updateProfile(userCredential.user, {
- displayName: values.fullName,
- });
+        await updateProfile(userCredential.user, {
+          displayName: values.fullName,
+        });
 
-        // Additional actions after successful signup, e.g., storing user data in Firestore
-        // await db.collection("users").doc(userCredential.user.uid).set({ ... });
         toast({
           title: "Account Created!",
-
-          description: "You have successfully signed up.",
+          description: "You have successfully signed up for VendorLink.",
         });
-        router.push("/account/profile"); // Or redirect to a welcome page
+        router.push("/account/profile"); 
       } catch (error: any) {
         console.error("Signup error:", error);
         let errorMessage = "An unexpected error occurred. Please try again.";
@@ -82,7 +79,7 @@ export default function SignupPage() {
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-headline text-primary">Create an Account</CardTitle>
-          <CardDescription>Join KuubsonLink to order delicious food.</CardDescription>
+          <CardDescription>Join VendorLink to order delicious food.</CardDescription>
         </CardHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>

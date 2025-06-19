@@ -8,7 +8,7 @@ import { Loader2, ShoppingBag } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge"; // Import the Badge component
+import { Badge } from "@/components/ui/badge"; 
 
 // Placeholder data for orders - replace with actual data fetching
 const placeholderOrders = [
@@ -44,19 +44,18 @@ const placeholderOrders = [
   },
 ];
 
-// Function to determine badge variant based on order status
 const getStatusBadgeVariant = (status: string): "default" | "destructive" | "secondary" | "outline" => {
   switch (status.toLowerCase()) {
     case "delivered":
-      return "default"; // Uses primary color by default
+      return "default"; 
     case "cancelled":
       return "destructive";
     case "pending":
     case "preparing":
     case "out for delivery":
-      return "secondary"; // Good for in-progress/neutral states
+      return "secondary"; 
     default:
-      return "outline"; // Fallback for unknown statuses
+      return "outline"; 
   }
 };
 
@@ -86,7 +85,7 @@ export default function OrderHistoryPage() {
           <ShoppingBag className="mr-3 h-10 w-10" /> Order History
         </h1>
         <p className="text-lg text-muted-foreground mt-1">
-          Review your past orders with KuubsonLink.
+          Review your past orders with VendorLink.
         </p>
       </header>
 
@@ -113,7 +112,6 @@ export default function OrderHistoryPage() {
                             Placed on: {new Date(order.date).toLocaleDateString()} from {order.vendorName}
                         </CardDescription>
                     </div>
-                    {/* Use the Badge component here */}
                     <Badge variant={getStatusBadgeVariant(order.status)} className="mt-2 md:mt-0 text-xs">
                         {order.status}
                     </Badge>

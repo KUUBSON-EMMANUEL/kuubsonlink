@@ -43,9 +43,9 @@ export default function LoginPage() {
         await signInWithEmailAndPassword(auth, values.email, values.password);
         toast({
           title: "Login Successful!",
-          description: "Welcome back to KuubsonLink.",
+          description: "Welcome back to VendorLink.",
         });
-        router.push("/account/profile"); // Or redirect to dashboard
+        router.push("/account/profile"); 
       } catch (error: any) {
         console.error("Login error:", error);
         toast({
@@ -62,7 +62,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-headline text-primary">Welcome Back!</CardTitle>
-          <CardDescription>Log in to continue to KuubsonLink.</CardDescription>
+          <CardDescription>Log in to continue to VendorLink.</CardDescription>
         </CardHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
