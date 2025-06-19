@@ -12,7 +12,7 @@ import { useState, useEffect } from "react";
 
 // Function to extract HSL value from globals.css content for a given variable
 const extractHslValue = (cssContent: string, variableName: string): string => {
-  const regex = new RegExp(`${variableName}:\\s*([\\d.]+\\s+[\\d.]+%\\[\\s[\\d.]+%);`);
+  const regex = new RegExp(`${variableName}:\\s*([\\d.]+\\s+[\\d.]+%\s+[\\d.]+%);`);
   const match = cssContent.match(regex);
   if (match && match[1]) {
     return match[1].trim();
@@ -25,7 +25,6 @@ const extractHslValue = (cssContent: string, variableName: string): string => {
 };
 
 // Initial globals.css content (can be fetched or hardcoded for initialization)
-// In a real scenario, you might fetch this or have it available.
 // For this interaction, we'll use the known initial values.
 const initialGlobalsCss = `
 @tailwind base;
@@ -138,6 +137,7 @@ export default function AdminSettingsPage() {
   const { toast } = useToast();
   const [isSavingGeneral, setIsSavingGeneral] = useState(false);
   const [isSavingTheme, setIsSavingTheme] = useState(false);
+  const [isSavingMaintenance, setIsSavingMaintenance] = useState(false);
 
   // State for General Settings
   const [siteName, setSiteName] = useState("VendorLink");
@@ -149,10 +149,14 @@ export default function AdminSettingsPage() {
   const [backgroundColor, setBackgroundColor] = useState(() => extractHslValue(initialGlobalsCss, '--background'));
   const [accentColor, setAccentColor] = useState(() => extractHslValue(initialGlobalsCss, '--accent'));
 
+  // State for Maintenance Mode
+  const [maintenanceModeEnabled, setMaintenanceModeEnabled] = useState(false);
+  const [maintenanceMessage, setMaintenanceMessage] = useState("Site is currently down for maintenance. We'll be back shortly!");
+
 
   const handleSaveGeneral = async () => {
     setIsSavingGeneral(true);
-    await new Promise(resolve => setTimeout(resolve, 750)); // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 750)); 
     toast({
       title: "General Settings Saved (Locally)",
       description: `Site Name: ${siteName}, Admin Email: ${adminEmail}, Registrations Open: ${registrationOpen}. In a real app, this would be saved to a backend.`,
@@ -162,9 +166,7 @@ export default function AdminSettingsPage() {
 
   const handleSaveTheme = async () => {
     setIsSavingTheme(true);
-    // Simulate updating globals.css (in a real scenario, this would trigger an API call or directly modify files if permissions allow, which is complex in this context)
     
-    // Basic HSL validation (e.g., "123 45% 67%") - very basic
     const hslRegex = /^\d{1,3}\s+\d{1,3}%\s+\d{1,3}%$/;
     if (!hslRegex.test(primaryColor) || !hslRegex.test(backgroundColor) || !hslRegex.test(accentColor)) {
         toast({
@@ -175,9 +177,6 @@ export default function AdminSettingsPage() {
         setIsSavingTheme(false);
         return;
     }
-
-    // This part would normally involve an API call or a build step.
-    // For demonstration, we'll just show a toast. The actual XML for globals.css will be sent.
     await new Promise(resolve => setTimeout(resolve, 750));
 
     toast({
@@ -185,7 +184,16 @@ export default function AdminSettingsPage() {
       description: `Primary: ${primaryColor}, Background: ${backgroundColor}, Accent: ${accentColor}. Refresh to see changes if globals.css was actually modified.`,
     });
     setIsSavingTheme(false);
-    // The actual <changes> block will be sent by the AI to update globals.css
+  };
+
+  const handleSaveMaintenance = async () => {
+    setIsSavingMaintenance(true);
+    await new Promise(resolve => setTimeout(resolve, 750));
+    toast({
+      title: "Maintenance Mode Settings Updated (Locally)",
+      description: `Maintenance Mode: ${maintenanceModeEnabled ? 'Enabled' : 'Disabled'}. Message: "${maintenanceMessage}". In a real app, this would affect site access.`,
+    });
+    setIsSavingMaintenance(false);
   };
 
 
@@ -268,18 +276,31 @@ export default function AdminSettingsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center space-x-2">
-              <Switch id="maintenanceMode" defaultChecked={false} disabled />
+              <Switch 
+                id="maintenanceMode" 
+                checked={maintenanceModeEnabled} 
+                onCheckedChange={setMaintenanceModeEnabled}
+                disabled={isSavingMaintenance}
+              />
               <Label htmlFor="maintenanceMode" className="text-sm font-medium">
                 Enable Maintenance Mode
               </Label>
             </div>
             <div className="space-y-1">
               <Label htmlFor="maintenanceMessage">Maintenance Message</Label>
-              <Input id="maintenanceMessage" defaultValue="Site is currently down for maintenance. We'll be back shortly!" disabled />
+              <Input 
+                id="maintenanceMessage" 
+                value={maintenanceMessage} 
+                onChange={(e) => setMaintenanceMessage(e.target.value)} 
+                disabled={isSavingMaintenance}
+              />
             </div>
           </CardContent>
            <CardFooter className="border-t pt-6">
-            <Button onClick={() => toast({ title: "Placeholder", description: "Maintenance mode update is not implemented."})} disabled>Update Maintenance Mode</Button>
+            <Button onClick={handleSaveMaintenance} disabled={isSavingMaintenance}>
+              {isSavingMaintenance && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Update Maintenance Mode
+            </Button>
           </CardFooter>
         </Card>
         
@@ -314,5 +335,7 @@ export default function AdminSettingsPage() {
     </div>
   );
 }
+
+    
 
     
