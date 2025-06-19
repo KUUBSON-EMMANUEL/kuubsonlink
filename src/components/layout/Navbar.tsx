@@ -3,10 +3,10 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { NAV_LINKS_MAIN, NAV_LINKS_GUEST } from '@/lib/constants'; // Removed NAV_LINKS_USER_AUTHENTICATED as it's not directly used now
+import { NAV_LINKS_MAIN, NAV_LINKS_GUEST } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Utensils, LogOut, UserCircle, Briefcase } from 'lucide-react';
+import { Utensils, LogOut, UserCircle, Briefcase, Shield } from 'lucide-react'; // Added Shield
 import { useAuth } from '@/hooks/useAuth';
 import {
   DropdownMenu,
@@ -24,11 +24,17 @@ export function Navbar() {
   const { currentUser, logout, loading } = useAuth();
 
   let isVendor = false;
+  let isAdmin = false; // Added isAdmin check
+
   if (currentUser) {
     const displayName = currentUser.displayName || "";
     const email = currentUser.email || "";
     isVendor = displayName.toLowerCase().includes('vendor') || 
                email.toLowerCase() === 'vendor@example.com';
+    
+    // Basic admin check - refine as needed for a real application
+    isAdmin = email.toLowerCase() === 'admin@example.com' || 
+              displayName.toLowerCase().includes('admin');
   }
 
 
@@ -121,6 +127,14 @@ export function Navbar() {
                     </Link>
                   </DropdownMenuItem>
                 )}
+                {isAdmin && ( // Conditionally render Admin Dashboard link
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin/dashboard" className="flex items-center w-full">
+                      <Shield className="mr-2 h-4 w-4" />
+                      Admin Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={logout} className="cursor-pointer text-destructive focus:text-destructive-foreground focus:bg-destructive">
                   <LogOut className="mr-2 h-4 w-4" />
@@ -139,7 +153,8 @@ export function Navbar() {
             ))
           )}
           <Button variant="ghost" size="icon" className="md:hidden">
-            <Utensils className="h-5 w-5" /> 
+            {/* Using Utensils for mobile menu toggle for consistency, can be changed */}
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
             <span className="sr-only">Open menu</span>
           </Button>
         </div>
