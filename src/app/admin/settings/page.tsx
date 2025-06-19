@@ -138,6 +138,8 @@ export default function AdminSettingsPage() {
   const [isSavingGeneral, setIsSavingGeneral] = useState(false);
   const [isSavingTheme, setIsSavingTheme] = useState(false);
   const [isSavingMaintenance, setIsSavingMaintenance] = useState(false);
+  const [isSavingEmail, setIsSavingEmail] = useState(false);
+
 
   // State for General Settings
   const [siteName, setSiteName] = useState("VendorLink");
@@ -153,6 +155,9 @@ export default function AdminSettingsPage() {
   const [maintenanceModeEnabled, setMaintenanceModeEnabled] = useState(false);
   const [maintenanceMessage, setMaintenanceMessage] = useState("Site is currently down for maintenance. We'll be back shortly!");
 
+  // State for Email Settings
+  const [smtpServer, setSmtpServer] = useState("smtp.example.com");
+  const [smtpUser, setSmtpUser] = useState("user@example.com");
 
   const handleSaveGeneral = async () => {
     setIsSavingGeneral(true);
@@ -194,6 +199,16 @@ export default function AdminSettingsPage() {
       description: `Maintenance Mode: ${maintenanceModeEnabled ? 'Enabled' : 'Disabled'}. Message: "${maintenanceMessage}". In a real app, this would affect site access.`,
     });
     setIsSavingMaintenance(false);
+  };
+  
+  const handleSaveEmail = async () => {
+    setIsSavingEmail(true);
+    await new Promise(resolve => setTimeout(resolve, 750));
+    toast({
+      title: "Email Settings Saved (Locally)",
+      description: `SMTP Server: ${smtpServer}, SMTP User: ${smtpUser}. Actual email sending requires backend setup.`,
+    });
+    setIsSavingEmail(false);
   };
 
 
@@ -313,15 +328,18 @@ export default function AdminSettingsPage() {
           <CardContent className="space-y-4">
             <div className="space-y-1">
               <Label htmlFor="smtpServer">SMTP Server</Label>
-              <Input id="smtpServer" placeholder="smtp.example.com" disabled />
+              <Input id="smtpServer" value={smtpServer} onChange={(e) => setSmtpServer(e.target.value)} placeholder="smtp.example.com" disabled={isSavingEmail} />
             </div>
             <div className="space-y-1">
               <Label htmlFor="smtpUser">SMTP Username</Label>
-              <Input id="smtpUser" placeholder="user@example.com" disabled />
+              <Input id="smtpUser" value={smtpUser} onChange={(e) => setSmtpUser(e.target.value)} placeholder="user@example.com" disabled={isSavingEmail} />
             </div>
           </CardContent>
            <CardFooter className="border-t pt-6">
-            <Button onClick={() => toast({ title: "Placeholder", description: "Email settings update is not implemented."})} disabled>Save Email Settings</Button>
+            <Button onClick={handleSaveEmail} disabled={isSavingEmail}>
+                {isSavingEmail && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Save Email Settings
+            </Button>
           </CardFooter>
         </Card>
 
@@ -335,7 +353,6 @@ export default function AdminSettingsPage() {
     </div>
   );
 }
-
     
-
+    
     
