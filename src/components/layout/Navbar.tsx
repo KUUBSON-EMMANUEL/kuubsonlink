@@ -84,9 +84,9 @@ export function Navbar() {
 
   const guestNavLinks = NAV_LINKS_GUEST.map((item) => (
      <Link key={item.href} href={item.href}>
-       <Button 
-          variant={item.href === '/vendor/register' || item.href === '/auth/signup' ? "default" : "outline"}
-          size="sm" 
+       <Button
+          variant={item.href === '/auth/signup' ? "default" : "outline"}
+          size="sm"
           className="flex items-center gap-1.5"
         >
          {item.icon && <item.icon className="h-4 w-4" />}
