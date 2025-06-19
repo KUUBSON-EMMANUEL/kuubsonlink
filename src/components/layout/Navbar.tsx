@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { NAV_LINKS_MAIN, NAV_LINKS_GUEST } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Utensils, LogOut, UserCircle, Briefcase, Shield } from 'lucide-react'; // Added Shield
+import { Utensils, LogOut, UserCircle, Briefcase, Shield } from 'lucide-react'; // Ensured Shield is imported
 import { useAuth } from '@/hooks/useAuth';
 import {
   DropdownMenu,
@@ -24,7 +24,7 @@ export function Navbar() {
   const { currentUser, logout, loading } = useAuth();
 
   let isVendor = false;
-  let isAdmin = false; // Added isAdmin check
+  let isAdmin = false;
 
   if (currentUser) {
     const displayName = currentUser.displayName || "";
@@ -32,7 +32,6 @@ export function Navbar() {
     isVendor = displayName.toLowerCase().includes('vendor') || 
                email.toLowerCase() === 'vendor@example.com';
     
-    // Basic admin check - refine as needed for a real application
     isAdmin = email.toLowerCase() === 'admin@example.com' || 
               displayName.toLowerCase().includes('admin');
   }
@@ -127,7 +126,7 @@ export function Navbar() {
                     </Link>
                   </DropdownMenuItem>
                 )}
-                {isAdmin && ( // Conditionally render Admin Dashboard link
+                {isAdmin && (
                   <DropdownMenuItem asChild>
                     <Link href="/admin/dashboard" className="flex items-center w-full">
                       <Shield className="mr-2 h-4 w-4" />
