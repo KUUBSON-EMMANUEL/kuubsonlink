@@ -1,13 +1,16 @@
 
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth"; 
-import { Loader2, Users, ShieldAlert } from "lucide-react";
+// Admin check is now handled by /admin/layout.tsx
+
+import { Loader2, Users } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useAuth } from "@/hooks/useAuth"; // Still needed for potential future admin-specific actions
+import { useRouter } from "next/navigation"; // Potentially for navigation actions
+import { useEffect } from "react";
+
 
 const placeholderUsers = [
   { id: "usr_1", name: "Alice Wonderland", email: "alice@example.com", role: "Customer", joined: "2024-03-15" },
@@ -19,54 +22,20 @@ const placeholderUsers = [
 
 
 export default function AdminUserManagementPage() {
-  const { currentUser, loading: authLoading } = useAuth();
-  const router = useRouter();
+  const { currentUser, loading: authLoading } = useAuth(); // Keep auth info if needed for specific user actions
+  const router = useRouter(); // Keep router if needed for navigation
 
-  let isAdmin = false;
-  if (currentUser) {
-    const displayName = currentUser.displayName || "";
-    const email = currentUser.email || "";
-    isAdmin = email.toLowerCase() === "admin@anaskuubson.gmail.com" || // Updated admin email
-              displayName.toLowerCase().includes("admin");
-  }
+  // The primary loading and auth checks are handled by the layout.
+  // This page assumes it's rendered for an authenticated admin.
 
-
-  useEffect(() => {
-    if (!authLoading) {
-      if (!currentUser) {
-        router.push("/auth/login");
-      } else if (!isAdmin) {
-        // No automatic redirect for non-admins, just show access denied message.
-      }
-    }
-  }, [currentUser, authLoading, router, isAdmin]);
-
-  if (authLoading || !currentUser) {
+  if (authLoading) {
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
       </div>
     );
   }
-
-  if (!isAdmin) {
-     return (
-      <div className="container mx-auto px-4 py-8 animate-in fade-in duration-500 text-center">
-        <Card className="max-w-md mx-auto shadow-lg border-destructive bg-card">
-          <CardHeader>
-            <CardTitle className="text-2xl font-headline text-destructive flex items-center justify-center">
-                <ShieldAlert className="mr-2 h-8 w-8" /> Access Denied
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground mb-6">You do not have permission to view this page.</p>
-            <Button onClick={() => router.push('/')} variant="outline">Go to Homepage</Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
+  
   return (
     <div className="container mx-auto px-4 py-8 animate-in fade-in duration-500">
       <header className="mb-10">
@@ -121,8 +90,8 @@ export default function AdminUserManagementPage() {
             <h3 className="font-semibold text-lg mb-2 font-headline">Developer Note:</h3>
             <p className="text-xs text-muted-foreground">
               This page displays placeholder data. In a real application, user data would be fetched from a backend,
-              and actions like Edit, Suspend, Delete would be implemented with proper authentication and authorization.
-              Role management would also be more robust. The admin check is currently based on specific email or display name.
+              and actions like Edit, Suspend, Delete would be implemented.
+              The admin check is now centralized in the admin layout.
             </p>
           </div>
         </CardContent>

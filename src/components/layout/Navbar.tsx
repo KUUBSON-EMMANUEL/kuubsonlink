@@ -23,25 +23,20 @@ import {
   SheetClose
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import React from 'react';
 
 
 export function Navbar() {
   const pathname = usePathname();
-  const { currentUser, logout, loading } = useAuth();
+  const { currentUser, logout, loading, isAdmin } = useAuth();
 
+  // Vendor check - placeholder, can be refined if vendor status is stored in profile/claims
   let isVendor = false;
-  let isAdmin = false;
-
   if (currentUser) {
     const displayName = currentUser.displayName || "";
     const email = currentUser.email || "";
-    // Check if user is a vendor (e.g., display name contains "vendor" or specific email)
     isVendor = displayName.toLowerCase().includes('vendor') ||
-               email.toLowerCase() === 'vendor@example.com'; // Example vendor email
-
-    // Check if user is an admin
-    isAdmin = email.toLowerCase() === "admin@anaskuubson.gmail.com" || // Updated admin email
-              displayName.toLowerCase().includes("admin");
+               email.toLowerCase() === 'vendor@example.com';
   }
 
 
